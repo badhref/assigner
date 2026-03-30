@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git --version)",
+      "Bash(gh --version)",
+      "Bash(cmd /c \"node --version && npm --version\")",
+      "Bash(cmd /c \"where node 2>&1 && where npm 2>&1\")",
+      "Bash(cmd /c \"python --version 2>&1\")",
+      "Bash(cmd /c \"py --version 2>&1 && py -c \"\"import sys; print\\(sys.executable\\)\"\"\")",
+      "Bash(cmd /c \"dir C:\\\\Windows\\\\System32\\\\python* 2>&1 & dir \"\"C:\\\\Program Files\\\\Python*\"\" 2>&1\")",
+      "WebFetch(domain:www.shell.com)"
+    ]
+  }
+}

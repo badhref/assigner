@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assigner</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Light mode ── */
+    :root {
+      --page-bg:      #F2F2F7;
+      --yellow:       #FBCE07;
+      --yellow-dark:  #E6B800;
+      --red:          #DD1D21;
+      --dark:         #1C1C1E;
+      --mid:          #6E6E73;
+      --light:        #E5E5EA;
+      --border:       rgba(60,60,67,0.12);
+      --white:        #FFFFFF;
+      --green:        #34C759;
+      --green-bg:     #E8FBE8;
+      --green-border: rgba(52,199,89,0.25);
+      --amber:        #FF9F0A;
+      --amber-bg:     #FFF5E0;
+      --amber-border: rgba(255,159,10,0.3);
+      --shadow-sm:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md:    0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+      --shadow-lg:    0 20px 60px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.06);
+      --cycle-bg:     #FFFBE6;
+      --cycle-border: rgba(230,184,0,0.25);
+      --blur:         blur(20px);
+    }
+
+    /* ── Dark mode ── */
+    [data-theme="dark"] {
+      --page-bg:      #000000;
+      --dark:         #F5F5F7;
+      --mid:          #98989D;
+      --light:        #1C1C1E;
+      --border:       rgba(255,255,255,0.10);
+      --white:        #1C1C1E;
+      --green:        #32D74B;
+      --green-bg:     rgba(50,215,75,0.12);
+      --green-border: rgba(50,215,75,0.2);
+      --amber:        #FF9F0A;
+      --amber-bg:     rgba(255,159,10,0.12);
+      --amber-border: rgba(255,159,10,0.2);
+      --shadow-sm:    0 1px 3px rgba(0,0,0,0.4);
+      --shadow-md:    0 4px 16px rgba(0,0,0,0.5);
+      --shadow-lg:    0 20px 60px rgba(0,0,0,0.7), 0 4px 16px rgba(0,0,0,0.4);
+      --cycle-bg:     rgba(251,206,7,0.08);
+      --cycle-border: rgba(251,206,7,0.15);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--page-bg);
+      color: var(--dark);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    [data-theme="dark"] .header {
+      background: rgba(28,28,30,0.72);
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .header-brand { display: flex; align-items: center; gap: 0.875rem; }
+    .brand-mark {
+      width: 40px; height: 40px;
+      background: var(--yellow);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(251,206,7,0.4);
+      overflow: hidden;
+    }
+    .brand-mark img { width: 28px; height: 28px; object-fit: contain; }
+
+    .brand-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--dark);
+      letter-spacing: -0.03em;
+    }
+    .brand-sub { font-size: 0.72rem; color: var(--mid); margin-top: 0.05rem; font-weight: 400; letter-spacing: 0; }
+
+    .header-right { display: flex; align-items: center; gap: 1.25rem; }
+    .header-stats { display: flex; align-items: center; gap: 1.25rem; }
+    .hstat { text-align: center; }
+    .hstat-val { font-size: 1.25rem; font-weight: 700; color: var(--dark); line-height: 1; letter-spacing: -0.03em; }
+    .hstat-val.green { color: var(--green); }
+    .hstat-lbl { font-size: 0.65rem; color: var(--mid); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.15rem; font-weight: 500; }
+    .hstat-divider { width: 1px; height: 24px; background: var(--border); }
+
+    .theme-toggle {
+      width: 32px; height: 32px;
+      background: var(--light);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1;
+      color: var(--mid);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .theme-toggle:hover { background: var(--border); transform: scale(1.08); }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      grid-template-rows: auto;
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .top-bar {
+      grid-column: 1 / -1;
+    }
+    .top-bar .card-title { margin-bottom: 0.75rem; }
+    .top-bar form { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; }
+    .top-bar .form-row { display: flex; gap: 0.75rem; flex: 0 0 auto; }
+    .top-bar .form-row .field input { width: 180px; }
+    .top-bar .btn-register { width: auto; margin-top: 0; white-space: nowrap; padding: 0.6rem 1.25rem; }
+    .top-bar .form-error { width: 100%; }
+    .left-col  { display: flex; flex-direction: column; gap: 1rem; }
+    .right-col { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--mid);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-badge {
+      background: var(--light);
+      color: var(--mid);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      margin-left: auto;
+    }
+
+    /* ── Cycle legend ── */
+    .cycle-legend {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.72rem;
+      color: var(--mid);
+      padding: 0.45rem 0.75rem;
+      background: var(--cycle-bg);
+      border: 1px solid var(--cycle-border);
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    /* ── Form ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+    .field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .field label {
+      font-size: 0.68rem; font-weight: 600; color: var(--mid);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .field input {
+      padding: 0.6rem 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: var(--dark);
+      background: var(--page-bg);
+      outline: none;
+      font-family: inherit;
+      -webkit-font-smoothing: antialiased;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input::placeholder { color: var(--mid); opacity: 0.5; }
+    .field input:focus {
+      border-color: var(--yellow-dark);
+      box-shadow: 0 0 0 3.5px rgba(251,206,7,0.22);
+    }
+    .form-error { font-size: 0.78rem; color: var(--red); margin-top: 0.25rem; }
+    .btn-register {
+      width: 100%; margin-top: 0.75rem; padding: 0.65rem;
+      background: var(--yellow); color: var(--dark);
+      border: none; border-radius: 10px;
+      font-size: 0.875rem; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+      letter-spacing: -0.01em;
+      transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+      box-shadow: 0 2px 8px rgba(251,206,7,0.35);
+    }
+    .btn-register:hover:not(:disabled) {
+      background: var(--yellow-dark);
+      box-shadow: 0 4px 12px rgba(251,206,7,0.45);
+      transform: translateY(-1px);
+    }
+    .btn-register:active { transform: translateY(0); }
+    .btn-register:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+    /* ── Member list ── */
+    .member-list { display: flex; flex-direction: column; gap: 0.45rem; max-height: 520px; overflow-y: auto; }
+
+    /* ── Member card ── */
+    .member-card {
+      border: 1px solid rgba(251,206,7,0.35);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      background: rgba(251,206,7,0.08);
+      transition: box-shadow 0.2s, background 0.25s, opacity 0.25s, border-color 0.25s;
+      animation: slideIn 0.22s ease;
+    }
+    [data-theme="dark"] .member-card { background: rgba(251,206,7,0.06); border-color: rgba(251,206,7,0.18); }
+    .member-card.in    { background: rgba(251,206,7,0.13); border-color: rgba(251,206,7,0.4); box-shadow: var(--shadow-sm); }
+    [data-theme="dark"] .member-card.in { background: rgba(251,206,7,0.09); }
+    .member-card.timed { background: var(--amber-bg); border-color: var(--amber-border); }
+    .member-card.out   { background: var(--light); border-color: var(--border); opacity: 0.55; }
+    [data-theme="dark"] .member-card.out { background: #2C2C2E; }
+
+    /* Assigned this cycle — grey out visually, all interactions still work */
+    .member-card.assigned {
+      background: var(--light);
+      border-color: var(--border);
+      opacity: 0.5;
+    }
+    [data-theme="dark"] .member-card.assigned { background: #2C2C2E; border-color: rgba(255,255,255,0.07); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Member card rows */
+    .member-name-row {
+      display: flex; align-items: center; gap: 0.55rem;
+      margin-bottom: 0.5rem;
+    }
+    .member-actions-row {
+      display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
+    }
+
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .status-dot.in    { background: var(--green); box-shadow: 0 0 0 2.5px rgba(52,199,89,0.2); }
+    .status-dot.timed { background: var(--amber); box-shadow: 0 0 0 2.5px rgba(255,159,10,0.2); }
+    .status-dot.out   { background: var(--mid); opacity: 0.4; }
+
+    .member-name {
+      font-size: 0.92rem; font-weight: 600; color: var(--dark);
+      letter-spacing: -0.02em; flex: 1; min-width: 0;
+    }
+    .member-actions-spacer { flex: 1; }
+
+    /* Lightning bolt indicator */
+    .lightning {
+      font-size: 0.85rem;
+      line-height: 1;
+      flex-shrink: 0;
+      animation: boltPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes boltPop {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .status-badge {
+      font-size: 0.65rem; font-weight: 600;
+      padding: 0.2rem 0.55rem; border-radius: 999px; white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+    .status-badge.in    { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
+    .status-badge.timed { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-border); }
+    .status-badge.out   { background: var(--light);     color: var(--mid);    border: 1px solid var(--border); }
+
+    .assign-count { font-size: 0.65rem; color: var(--mid); white-space: nowrap; font-weight: 500; }
+
+    .btn-sm {
+      font-size: 0.72rem; font-weight: 600;
+      padding: 0.28rem 0.65rem; border-radius: 999px;
+      cursor: pointer; border: 1.5px solid; white-space: nowrap;
+      font-family: inherit;
+      transition: all 0.12s;
+    }
+    .btn-checkin  { background: var(--yellow); color: var(--dark); border-color: var(--yellow-dark); }
+    .btn-checkin:hover { background: var(--yellow-dark); }
+    .btn-checkout { background: transparent; color: var(--mid); border-color: var(--border); }
+    .btn-checkout:hover { color: var(--dark); border-color: var(--mid); }
+.btn-remove   { background: none; color: var(--mid); border-color: transparent; padding: 0.28rem 0.45rem; opacity: 0.5; }
+    .btn-remove:hover { color: var(--red); opacity: 1; }
+
+    .confirm-remove { display: flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; color: var(--mid); }
+    .btn-confirm-yes {
+      font-size: 0.68rem; font-weight: 700; padding: 0.22rem 0.5rem;
+      border-radius: 999px; cursor: pointer; border: none;
+      background: rgba(221,29,33,0.1); color: var(--red); font-family: inherit;
+    }
+    .btn-confirm-no {
+      font-size: 0.68rem; padding: 0.22rem 0.5rem; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--white); color: var(--mid); font-family: inherit;
+    }
+
+    /* ── Checkout panel ── */
+    .checkout-panel {
+      margin-top: 0.6rem; padding-top: 0.6rem;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .checkout-label { font-size: 0.72rem; color: var(--mid); font-weight: 600; white-space: nowrap; }
+    .mins-input {
+      width: 56px; padding: 0.28rem 0.5rem;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 0.82rem; color: var(--dark); background: var(--white);
+      outline: none; text-align: center; font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .mins-input:focus { border-color: var(--yellow-dark); box-shadow: 0 0 0 3px rgba(251,206,7,0.2); }
+    .mins-label { font-size: 0.72rem; color: var(--mid); }
+    .btn-dur {
+      font-size: 0.72rem; font-weight: 600; padding: 0.28rem 0.7rem;
+      border-radius: 999px; cursor: pointer; font-family: inherit;
+      border: 1.5px solid var(--yellow-dark);
+      background: var(--yellow); color: var(--dark);
+      transition: all 0.12s;
+    }
+    .btn-dur:hover { background: var(--yellow-dark); }
+    .btn-dur.rest  { background: transparent; color: var(--mid); border-color: var(--border); }
+    .btn-dur.rest:hover { color: var(--dark); border-color: var(--mid); }
+    .btn-dur.cancel { background: none; color: var(--mid); border-color: transparent; }
+    .btn-dur.cancel:hover { color: var(--dark); }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 2rem 1rem; color: var(--mid); font-size: 0.85rem; line-height: 1.7; }
+
+    /* ── Assign card ── */
+    .assign-card { text-align: center; padding: 2rem 1.5rem; }
+    .assign-card .card-title { justify-content: center; }
+    .stats-row { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .stat-chip {
+      text-align: center; padding: 0.65rem 1.1rem;
+      background: var(--page-bg); border: 1px solid var(--border); border-radius: 14px; min-width: 74px;
+    }
+    .stat-chip .val { font-size: 1.5rem; font-weight: 700; color: var(--dark); display: block; letter-spacing: -0.04em; }
+    .stat-chip .val.green { color: var(--green); }
+    .stat-chip .lbl { font-size: 0.62rem; color: var(--mid); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; margin-top: 0.1rem; }
+
+    .btn-assign {
+      background: var(--yellow); color: var(--dark);
+      border: 2px dashed transparent; border-radius: 999px;
+      font-size: 1rem; font-weight: 700; padding: 0.875rem 2.75rem;
+      cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
+      box-shadow: 0 4px 16px rgba(251,206,7,0.45);
+      transition: background 0.15s, box-shadow 0.15s, transform 0.12s, border-color 0.15s, padding 0.15s;
+    }
+    .btn-assign:hover:not(:disabled):not(.drop-over) {
+      background: var(--yellow-dark);
+      box-shadow: 0 6px 20px rgba(251,206,7,0.55);
+      transform: translateY(-1px);
+    }
+    .btn-assign:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(251,206,7,0.3); }
+    .btn-assign:disabled { background: var(--light); color: var(--mid); box-shadow: none; cursor: not-allowed; }
+
+    /* Drop zone active state */
+    .btn-assign.drop-over {
+      background: var(--yellow-dark);
+      border-color: var(--dark);
+      box-shadow: 0 0 0 4px rgba(251,206,7,0.35), 0 6px 24px rgba(251,206,7,0.6);
+      transform: scale(1.06);
+    }
+
+    /* Dragging hint text under button */
+    .assign-drag-hint {
+      margin-top: 0.75rem;
+      font-size: 0.72rem;
+      color: var(--mid);
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .assign-drag-hint.visible { opacity: 1; }
+
+    .assign-hint { margin-top: 1rem; font-size: 0.78rem; color: var(--mid); line-height: 1.6; }
+
+    /* ── Balance mode toggle ── */
+    .balance-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.6rem; margin-top: 1.1rem; cursor: pointer; user-select: none;
+    }
+    .balance-label {
+      font-size: 0.8rem; font-weight: 600; color: var(--mid);
+      letter-spacing: -0.01em; transition: color 0.2s;
+    }
+    .balance-label.active { color: var(--dark); }
+    .toggle-track {
+      width: 42px; height: 24px;
+      background: var(--light);
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      position: relative;
+      transition: background 0.22s, border-color 0.22s;
+      flex-shrink: 0;
+    }
+    .toggle-track.on { background: var(--yellow); border-color: var(--yellow-dark); }
+    .toggle-thumb {
+      width: 18px; height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px; left: 2px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.22);
+      transition: transform 0.22s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    .toggle-track.on .toggle-thumb { transform: translateX(18px); }
+    .balance-desc {
+      font-size: 0.72rem; color: var(--mid); line-height: 1.5;
+      margin-top: 0.5rem; padding: 0.55rem 0.85rem;
+      background: var(--page-bg); border-radius: 10px;
+      border: 1px solid var(--border);
+      animation: slideIn 0.18s ease;
+    }
+
+    /* Draggable member cards */
+    .member-card.draggable { cursor: grab; }
+    .member-card.draggable:active { cursor: grabbing; }
+    .member-card.is-dragging { opacity: 0.4; transform: scale(0.98); }
+
+    /* ── History ── */
+    .history-list { display: flex; flex-direction: column; gap: 0.35rem; max-height: 360px; overflow-y: auto; }
+    .history-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.6rem 0.85rem;
+      background: var(--page-bg); border-radius: 10px; font-size: 0.83rem;
+      animation: slideIn 0.22s ease;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .history-item.current {
+      background: rgba(251,206,7,0.12);
+      border: 1px solid rgba(251,206,7,0.3);
+    }
+    .history-item.current .history-name  { color: #7A6000; }
+    .history-item.current .history-ts    { color: #A08000; }
+    .history-item.current .history-check { color: #A08000; }
+    [data-theme="dark"] .history-item.current { background: rgba(251,206,7,0.10); border-color: rgba(251,206,7,0.2); }
+    [data-theme="dark"] .history-item.current .history-name  { color: #FBCE07; }
+    [data-theme="dark"] .history-item.current .history-ts    { color: #C4A000; }
+    [data-theme="dark"] .history-item.current .history-check { color: #C4A000; }
+    .history-item.prev { opacity: 0.4; }
+    .history-name  { font-weight: 600; color: var(--dark); letter-spacing: -0.01em; }
+    .history-ts    { font-size: 0.68rem; color: var(--mid); margin-top: 0.1rem; }
+    .history-check { color: var(--green); font-weight: 600; font-size: 0.72rem; white-space: nowrap; }
+
+    /* Cycle marker row */
+    .cycle-marker {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.25rem 0;
+      animation: slideIn 0.22s ease;
+    }
+    .cycle-marker-line { flex: 1; height: 1px; background: var(--yellow-dark); opacity: 0.4; }
+    .cycle-marker-text {
+      font-size: 0.65rem; font-weight: 600; color: var(--mid);
+      white-space: nowrap; letter-spacing: 0.04em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+
+    /* ── Modal ── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; animation: fadeIn 0.18s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: var(--white); border-radius: 22px;
+      width: 92%; max-width: 400px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden; animation: slideUp 0.22s cubic-bezier(0.34,1.3,0.64,1);
+      border: 1px solid var(--border);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px) scale(0.97); opacity: 0; }
+      to   { transform: translateY(0) scale(1);       opacity: 1; }
+    }
+    .modal-header { background: var(--yellow); padding: 1.5rem 1.5rem 1.25rem; text-align: center; }
+    .modal-header-label {
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.1em; color: rgba(64,64,64,0.55); margin-bottom: 0.35rem;
+    }
+    .modal-name { font-size: 1.75rem; font-weight: 700; color: #1C1C1E; letter-spacing: -0.04em; }
+    .modal-body { padding: 1.25rem 1.5rem 1.5rem; }
+    .modal-stats {
+      background: var(--page-bg); border-radius: 12px; padding: 0.75rem 1rem;
+      font-size: 0.82rem; color: var(--mid); margin-bottom: 1.1rem;
+      display: flex; justify-content: space-between; border: 1px solid var(--border);
+    }
+    .modal-question { font-size: 0.92rem; font-weight: 600; color: var(--dark); text-align: center; margin-bottom: 1rem; letter-spacing: -0.01em; }
+    .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+    .btn-modal-yes {
+      padding: 0.75rem; background: var(--green); color: #fff;
+      border: none; border-radius: 12px; font-size: 0.875rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
+      transition: filter 0.15s, transform 0.12s;
+    }
+    .btn-modal-yes:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-modal-no {
+      padding: 0.75rem; background: rgba(221,29,33,0.08); color: var(--red);
+      border: 1px solid rgba(221,29,33,0.18); border-radius: 12px;
+      font-size: 0.875rem; font-weight: 600; cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
+      transition: background 0.15s, transform 0.12s;
+    }
+    .btn-modal-no:hover { background: rgba(221,29,33,0.13); transform: translateY(-1px); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      padding: 0.75rem 1.15rem; border-radius: 14px;
+      font-size: 0.82rem; font-weight: 600; font-family: inherit;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      z-index: 200; animation: toastIn 0.28s cubic-bezier(0.34,1.3,0.64,1); max-width: 300px;
+      letter-spacing: -0.01em;
+      backdrop-filter: blur(12px);
+    }
+    .toast.success { background: var(--green); color: #fff; }
+    .toast.error   { background: var(--red);   color: #fff; }
+    .toast.info    { background: rgba(28,28,30,0.88); color: #F5F5F7; }
+    [data-theme="dark"] .toast.info { background: rgba(255,255,255,0.14); color: var(--dark); }
+    @keyframes toastIn {
+      from { transform: translateX(16px) scale(0.95); opacity: 0; }
+      to   { transform: translateX(0) scale(1);       opacity: 1; }
+    }
+
+    /* ── Reset card ── */
+    .reset-card { padding: 1rem 1.25rem; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    @media (max-width: 860px) {
+      .container { grid-template-columns: 1fr; padding: 1rem; }
+      .header-stats { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function fmtDateTime(dt) {
+  if (!dt) return '';
+  const d = new Date(dt.replace(' ', 'T') + 'Z');
+  return d.toLocaleString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true,
+  });
+}
+
+function getReturnTime(checkout_until) {
+  if (!checkout_until) return null;
+  const until = new Date(checkout_until.replace(' ', 'T') + 'Z');
+  if (until <= Date.now()) return null;
+  return until.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
+function memberStatus(m) {
+  if (m.is_checked_in) return 'in';
+  if (m.checkout_until) return 'timed';
+  return 'out';
+}
+
+async function api(method, url, body) {
+  const res = await fetch(url, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+// ── Shell Logo ────────────────────────────────────────────────────────────────
+
+function ShellLogo({ size = 28 }) {
+  return <img src="/shell-logo.png" width={size} height={size} style={{ objectFit: 'contain', display: 'block' }} alt="Shell" />;
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
+function Toast({ message, type, onDone }) {
+  useEffect(() => { const t = setTimeout(onDone, 3500); return () => clearTimeout(t); }, []);
+  return <div className={`toast ${type}`}>{message}</div>;
+}
+
+// ── Register form ─────────────────────────────────────────────────────────────
+
+function RegisterForm({ onAdded }) {
+  const [form, setForm] = useState({ first_name: '', last_name: '' });
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!form.first_name.trim() || !form.last_name.trim()) return setError('First and last name are required.');
+    setBusy(true); setError('');
+    try {
+      const member = await api('POST', '/api/members', form);
+      onAdded(member);
+      setForm({ first_name: '', last_name: '' });
+    } catch (err) { setError(err.message); }
+    finally { setBusy(false); }
+  }
+
+  return (
+    <form onSubmit={submit}>
+      <div className="form-row">
+        <div className="field">
+          <label>First Name</label>
+          <input type="text" placeholder="Jane" value={form.first_name} onChange={set('first_name')} />
+        </div>
+        <div className="field">
+          <label>Last Name</label>
+          <input type="text" placeholder="Smith" value={form.last_name} onChange={set('last_name')} />
+        </div>
+      </div>
+      {error && <p className="form-error">{error}</p>}
+      <button type="submit" className="btn-register" disabled={busy}>
+        {busy ? 'Adding…' : '+ Add Me'}
+      </button>
+    </form>
+  );
+}
+
+// ── Checkout panel ────────────────────────────────────────────────────────────
+
+function CheckoutPanel({ onConfirm, onCancel }) {
+  const [mins, setMins] = useState('30');
+  return (
+    <div className="checkout-panel">
+      <span className="checkout-label">Out for:</span>
+      <input
+        type="number" className="mins-input" min="1" max="480"
+        value={mins} onChange={e => setMins(e.target.value)}
+      />
+      <span className="mins-label">min</span>
+      <button className="btn-dur" onClick={() => onConfirm(Math.max(1, parseInt(mins) || 30))}>Check Out</button>
+      <button className="btn-dur rest" onClick={() => onConfirm(null)}>Rest of Day</button>
+      <button className="btn-dur cancel" onClick={onCancel}>Cancel</button>
+    </div>
+  );
+}
+
+// ── Member card ───────────────────────────────────────────────────────────────
+
+function MemberCard({ member, onCheckin, onCheckout, onRemove, onDragStart, onDragEnd, isDragging, balanceExcluded }) {
+  const [showCheckout, setShowCheckout]   = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const status   = memberStatus(member);
+  const returnAt = getReturnTime(member.checkout_until);
+
+  const statusLabel = status === 'in'
+    ? 'Available'
+    : status === 'timed' && returnAt
+    ? `Returns ${returnAt}`
+    : 'Out';
+
+  function handleCheckoutConfirm(mins) {
+    setShowCheckout(false);
+    onCheckout(member.id, mins);
+  }
+
+  const canDrag = status === 'in';
+
+  return (
+    <div
+      className={`member-card ${status}${(member.current_cycle_assigned || balanceExcluded) ? ' assigned' : ''}${canDrag ? ' draggable' : ''}${isDragging ? ' is-dragging' : ''}`}
+      draggable={canDrag}
+      onDragStart={canDrag ? (e) => { e.dataTransfer.effectAllowed = 'move'; onDragStart(member.id); } : undefined}
+      onDragEnd={canDrag ? onDragEnd : undefined}
+    >
+      {/* Row 1: name */}
+      <div className="member-name-row">
+        <div className={`status-dot ${status}`} />
+        <span className="member-name">{member.first_name} {member.last_name}</span>
+      </div>
+      {/* Row 2: actions */}
+      <div className="member-actions-row">
+        <span className={`status-badge ${status}`}>{statusLabel}</span>
+        <span className="assign-count">{member.pick_count}×</span>
+        <span className="member-actions-spacer" />
+        {status === 'out' || status === 'timed' ? (
+          <button className="btn-sm btn-checkin" onClick={() => onCheckin(member.id)}>Check In</button>
+        ) : (
+          <button className="btn-sm btn-checkout" onClick={() => setShowCheckout(v => !v)}>Check Out</button>
+        )}
+        {confirmRemove ? (
+          <div className="confirm-remove">
+            <span>Remove?</span>
+            <button className="btn-confirm-yes" onClick={() => { onRemove(member.id); setConfirmRemove(false); }}>Yes</button>
+            <button className="btn-confirm-no"  onClick={() => setConfirmRemove(false)}>No</button>
+          </div>
+        ) : (
+          <button className="btn-sm btn-remove" onClick={() => setConfirmRemove(true)} title="Remove">✕</button>
+        )}
+      </div>
+      {showCheckout && (
+        <CheckoutPanel onConfirm={handleCheckoutConfirm} onCancel={() => setShowCheckout(false)} />
+      )}
+    </div>
+  );
+}
+
+// ── Pick modal ────────────────────────────────────────────────────────────────
+
+function PickModal({ pick, onConfirm, onUnavailable }) {
+  const m = pick.member;
+  return (
+    <div className="overlay">
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-header-label">Selected for Assignment</div>
+          <div className="modal-name">{m.first_name} {m.last_name}</div>
+        </div>
+        <div className="modal-body">
+          <div className="modal-stats">
+            <span>Status: <strong style={{color:'var(--green)'}}>Available</strong></span>
+            <span>Total assignments: <strong>{m.pick_count}</strong></span>
+          </div>
+          <div className="modal-question">Was the work item successfully assigned?</div>
+          <div className="modal-actions">
+            <button className="btn-modal-yes" onClick={onConfirm}>✓ Yes, Assigned</button>
+            <button className="btn-modal-no"  onClick={onUnavailable}>✕ Not Available</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Reset card ────────────────────────────────────────────────────────────────
+
+function ResetCard({ onReset }) {
+  const [confirming, setConfirming] = useState(false);
+  return (
+    <div className="card reset-card">
+      <div className="card-title" style={{marginBottom: confirming ? '0.75rem' : 0}}>Master Reset</div>
+      {confirming ? (
+        <div>
+          <p style={{fontSize:'0.82rem',color:'var(--mid)',marginBottom:'0.75rem',lineHeight:1.6}}>
+            Resets all assignment counts, clears cycle progress, checks everyone out, and erases history. The roster is not affected.
+          </p>
+          <div style={{display:'flex',gap:'0.6rem'}}>
+            <button
+              onClick={() => { onReset(); setConfirming(false); }}
+              style={{padding:'0.55rem 1.1rem',background:'var(--red)',color:'#fff',border:'none',borderRadius:'999px',fontWeight:600,fontSize:'0.82rem',cursor:'pointer',fontFamily:'inherit'}}
+            >Reset Everything</button>
+            <button
+              onClick={() => setConfirming(false)}
+              style={{padding:'0.55rem 1rem',background:'transparent',color:'var(--mid)',border:'1.5px solid var(--border)',borderRadius:'999px',fontSize:'0.82rem',cursor:'pointer',fontFamily:'inherit'}}
+            >Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setConfirming(true)}
+          style={{fontSize:'0.78rem',color:'var(--mid)',background:'transparent',border:'1.5px solid var(--border)',borderRadius:'999px',padding:'0.4rem 0.9rem',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}
+          onMouseOver={e => { e.target.style.color='var(--red)'; e.target.style.borderColor='rgba(221,29,33,0.3)'; }}
+          onMouseOut={e =>  { e.target.style.color='var(--mid)'; e.target.style.borderColor='var(--border)'; }}
+        >Reset All Assignments &amp; History</button>
+      )}
+    </div>
+  );
+}
+
+// ── App ───────────────────────────────────────────────────────────────────────
+
+function App() {
+  const [members, setMembers]         = useState([]);
+  const [history, setHistory]         = useState([]);
+  const [pendingPick, setPendingPick] = useState(null);
+  const [picking, setPicking]         = useState(false);
+  const [toast, setToast]             = useState(null);
+  const [darkMode, setDarkMode]       = useState(() => localStorage.getItem('theme') === 'dark');
+  const [draggingId, setDraggingId]   = useState(null);
+  const [dropOver, setDropOver]       = useState(false);
+  const [balanceMode, setBalanceMode] = useState(false);
+  const dragCounter                   = React.useRef(0);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
+
+  const showToast = (msg, type = 'info') => setToast({ message: msg, type });
+
+  const sortMembers = list =>
+    [...list].sort((a, b) =>
+      (b.is_checked_in - a.is_checked_in) ||
+      a.last_name.localeCompare(b.last_name) ||
+      a.first_name.localeCompare(b.first_name)
+    );
+
+  const loadMembers = useCallback(async () => {
+    const data = await api('GET', '/api/members').catch(() => []);
+    setMembers(sortMembers(data));
+  }, []);
+
+  const loadHistory = useCallback(async () => {
+    const data = await api('GET', '/api/history').catch(() => []);
+    setHistory(data);
+  }, []);
+
+  useEffect(() => {
+    loadMembers();
+    loadHistory();
+    const poll = setInterval(loadMembers, 30_000);
+    return () => clearInterval(poll);
+  }, []);
+
+  function handleAdded(member) {
+    setMembers(prev => sortMembers([...prev, member]));
+    showToast(`${member.first_name} ${member.last_name} added.`, 'success');
+  }
+
+  async function handleCheckin(id) {
+    try {
+      const updated = await api('POST', `/api/members/${id}/checkin`);
+      setMembers(prev => sortMembers(prev.map(m => m.id === id ? updated : m)));
+      showToast('Checked in — you\'re in the pool.', 'success');
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  async function handleCheckout(id, duration_minutes) {
+    try {
+      const updated = await api('POST', `/api/members/${id}/checkout`, { duration_minutes });
+      setMembers(prev => sortMembers(prev.map(m => m.id === id ? updated : m)));
+      showToast(duration_minutes ? 'Checked out — timer set.' : 'Checked out for the rest of the day.', 'info');
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  async function handleRemove(id) {
+    try {
+      await api('DELETE', `/api/members/${id}`);
+      setMembers(prev => prev.filter(m => m.id !== id));
+      showToast('Removed.', 'info');
+    } catch { showToast('Could not remove.', 'error'); }
+  }
+
+  async function handlePick() {
+    setPicking(true);
+    try {
+      const result = await api('POST', '/api/pick', balanceMode ? { balanced: true } : undefined);
+      setPendingPick(result);
+    } catch (err) { showToast(err.message || 'Could not pick.', 'error'); }
+    finally { setPicking(false); }
+  }
+
+  async function handleManualPick(id) {
+    try {
+      const result = await api('POST', `/api/members/${id}/pick`);
+      setPendingPick(result);
+    } catch (err) { showToast(err.message || 'Could not assign.', 'error'); }
+  }
+
+  function handleDragStart(id) { setDraggingId(id); }
+  function handleDragEnd()     { setDraggingId(null); setDropOver(false); dragCounter.current = 0; }
+
+  function handleDropZoneEnter(e) {
+    e.preventDefault();
+    dragCounter.current += 1;
+    if (draggingId) setDropOver(true);
+  }
+  function handleDropZoneLeave() {
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) { setDropOver(false); dragCounter.current = 0; }
+  }
+  function handleDropZoneOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+  function handleDrop(e) {
+    e.preventDefault();
+    setDropOver(false);
+    dragCounter.current = 0;
+    if (draggingId) { handleManualPick(draggingId); setDraggingId(null); }
+  }
+
+  async function handleConfirm() {
+    try {
+      await api('POST', `/api/pick/${pendingPick.pick_id}/confirm`);
+      const name = `${pendingPick.member.first_name} ${pendingPick.member.last_name}`;
+
+      // Always re-fetch members from server — optimistic updates drift when picks
+      // happen in quick succession. Server data is always the source of truth.
+      const fresh  = await api('GET', '/api/members').catch(() => null);
+      const sorted = fresh ? sortMembers(fresh) : null;
+
+      if (balanceMode) {
+        if (sorted) {
+          const checkedIn  = sorted.filter(m => m.is_checked_in);
+          const counts     = checkedIn.map(m => m.pick_count);
+          const isBalanced = checkedIn.length > 0 && counts.every(c => c === counts[0]);
+          if (isBalanced) {
+            setMembers(sorted.map(m => ({ ...m, current_cycle_assigned: 0 })));
+            setBalanceMode(false);
+            showToast('Balance reached — switching back to cycle mode.', 'success');
+          } else {
+            setMembers(sorted);
+            showToast(`Assigned to ${name}.`, 'success');
+          }
+        } else {
+          showToast(`Assigned to ${name}.`, 'success');
+        }
+      } else {
+        if (sorted) {
+          const checkedIn     = sorted.filter(m => m.is_checked_in);
+          const cycleComplete = checkedIn.length > 0 && checkedIn.every(m => m.current_cycle_assigned);
+          setMembers(cycleComplete ? sorted.map(m => ({ ...m, current_cycle_assigned: 0 })) : sorted);
+        }
+        showToast(`Assigned to ${name}.`, 'success');
+      }
+      setPendingPick(null);
+      loadHistory();
+    } catch { showToast('Failed to confirm.', 'error'); }
+  }
+
+  async function handleUnavailable() {
+    try { await api('POST', `/api/pick/${pendingPick.pick_id}/cancel`); } catch {}
+    setPendingPick(null);
+    showToast('Cancelled — try again.', 'info');
+  }
+
+  async function handleReset() {
+    try {
+      await api('POST', '/api/reset');
+      await loadMembers();
+      await loadHistory();
+      showToast('Reset complete.', 'info');
+    } catch { showToast('Reset failed.', 'error'); }
+  }
+
+  const available         = members.filter(m => m.is_checked_in).length;
+  const total             = members.length;
+  const totalAssign       = members.reduce((s, m) => s + m.pick_count, 0);
+  const assignedThisCycle = members.filter(m => m.current_cycle_assigned).length;
+  const showCycleLegend   = total > 0 && assignedThisCycle > 0;
+
+  // Balance mode exclusion: checked-in members at the max pick_count are excluded
+  // until everyone else catches up. When all are equal, no one is excluded.
+  const checkedInMembers  = members.filter(m => m.is_checked_in);
+  const balanceMaxCount   = balanceMode && checkedInMembers.length > 0
+    ? Math.max(...checkedInMembers.map(m => m.pick_count)) : -1;
+  const balanceAllEqual   = balanceMode && checkedInMembers.length > 0
+    && checkedInMembers.every(m => m.pick_count === balanceMaxCount);
+
+  return (
+    <>
+      <header className="header">
+        <div className="header-inner">
+          <div className="header-brand">
+            <div className="brand-mark">
+              <ShellLogo size={26} />
+            </div>
+            <div>
+              <div className="brand-name">Assigner</div>
+              <div className="brand-sub">Work Assignment Tool</div>
+            </div>
+          </div>
+          <div className="header-right">
+            <button className="theme-toggle" onClick={() => setDarkMode(d => !d)} title="Toggle dark mode">
+              {darkMode ? '☀' : '🌙'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="container">
+        <div className="top-bar card">
+          <div className="card-title">Add a Team Member</div>
+          <RegisterForm onAdded={handleAdded} />
+        </div>
+
+        <div className="left-col">
+          <div className="card">
+            <div className="card-title">
+              Team Roster
+              <span className="card-badge">{total}</span>
+            </div>
+            {showCycleLegend && (
+              <div className="cycle-legend">
+                <span>⚡</span>
+                <span>{assignedThisCycle} of {available || total} assigned this cycle</span>
+              </div>
+            )}
+            {total === 0 ? (
+              <div className="empty">No one on the roster yet.<br />Add yourself above.</div>
+            ) : (
+              <div className="member-list">
+                {members.map(m => (
+                  <MemberCard
+                    key={m.id}
+                    member={m}
+                    onCheckin={handleCheckin}
+                    onCheckout={handleCheckout}
+                    onRemove={handleRemove}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    isDragging={draggingId === m.id}
+                    balanceExcluded={balanceMode && !balanceAllEqual && m.is_checked_in && m.pick_count >= balanceMaxCount}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="right-col">
+          <div className="card assign-card">
+            <div className="card-title">Assign Work Item</div>
+            {total > 0 && (
+              <div className="stats-row">
+                <div className="stat-chip">
+                  <span className={`val ${available > 0 ? 'green' : ''}`}>{available}</span>
+                  <span className="lbl">Available</span>
+                </div>
+                <div className="stat-chip">
+                  <span className="val">{total - available}</span>
+                  <span className="lbl">Out</span>
+                </div>
+                {!balanceMode && (
+                  <div className="stat-chip">
+                    <span className="val">{assignedThisCycle}/{available || total}</span>
+                    <span className="lbl">This Cycle</span>
+                  </div>
+                )}
+              </div>
+            )}
+            <button
+              className={`btn-assign${dropOver ? ' drop-over' : ''}`}
+              onClick={handlePick}
+              disabled={picking || available === 0}
+              onDragEnter={handleDropZoneEnter}
+              onDragLeave={handleDropZoneLeave}
+              onDragOver={handleDropZoneOver}
+              onDrop={handleDrop}
+            >
+              {dropOver ? '⚡ Drop to Assign' : picking ? 'Selecting…' : '⚡ Assign Someone'}
+            </button>
+            <p className={`assign-drag-hint${draggingId ? ' visible' : ''}`}>
+              Drop here to manually assign
+            </p>
+            <p className="assign-hint" style={{display: draggingId ? 'none' : undefined}}>
+              {available === 0
+                ? total === 0
+                  ? 'Add team members to get started.'
+                  : 'No one is checked in right now.'
+                : balanceMode
+                  ? `Balancing across ${available} available — those with fewer assignments go first.`
+                  : `Picks from ${available} available — each person is picked once before the cycle repeats.`}
+            </p>
+
+            {/* Balance Us toggle */}
+            <div className="balance-row" onClick={() => setBalanceMode(b => !b)}>
+              <div className={`toggle-track${balanceMode ? ' on' : ''}`}>
+                <div className="toggle-thumb" />
+              </div>
+              <span className={`balance-label${balanceMode ? ' active' : ''}`}>Balance Us</span>
+            </div>
+            {balanceMode && (
+              <p className="balance-desc">
+                Cycles paused. Members with fewer total assignments are picked first until everyone is even.
+              </p>
+            )}
+          </div>
+
+          <div className="card">
+            <div className="card-title">
+              Assignment History
+              <span className="card-badge">{history.filter(h => h.type === 'pick').length}</span>
+            </div>
+            {history.length === 0 ? (
+              <div className="empty">No assignments yet.</div>
+            ) : (
+              <div className="history-list">
+                {(() => {
+                  let pastCycle = false;
+                  return history.map(item => {
+                    if (item.type === 'cycle') {
+                      pastCycle = true;
+                      return (
+                        <div key={`cycle-${item.id}`} className="cycle-marker">
+                          <span className="cycle-marker-line" />
+                          <span className="cycle-marker-text">
+                            ⚡ New Cycle — {fmtDateTime(item.ts)}
+                          </span>
+                          <span className="cycle-marker-line" />
+                        </div>
+                      );
+                    }
+                    const cls = pastCycle ? 'prev' : 'current';
+                    return (
+                      <div key={`pick-${item.id}`} className={`history-item ${cls}`}>
+                        <div>
+                          <div className="history-name">{item.first_name} {item.last_name}</div>
+                          <div className="history-ts">{fmtDateTime(item.ts)}</div>
+                        </div>
+                        <span className="history-check">✓ Assigned</span>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            )}
+          </div>
+
+          <ResetCard onReset={handleReset} />
+        </div>
+      </div>
+
+      {pendingPick && (
+        <PickModal pick={pendingPick} onConfirm={handleConfirm} onUnavailable={handleUnavailable} />
+      )}
+      {toast && (
+        <Toast key={toast.message + Date.now()} message={toast.message} type={toast.type} onDone={() => setToast(null)} />
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
