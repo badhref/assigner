@@ -3,3 +3,4 @@ node_modules/
 tracker.db 
 tracker.db-shm 
 tracker.db-wal 
+node_modules/ 
