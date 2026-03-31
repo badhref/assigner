@@ -38,13 +38,29 @@ db.exec(`
 
 // Migrations — safely add new columns if upgrading from an older schema
 const migrations = [
-  'ALTER TABLE team_members ADD COLUMN is_checked_in          INTEGER NOT NULL DEFAULT 0',
-  'ALTER TABLE team_members ADD COLUMN checked_in_at          TEXT',
-  'ALTER TABLE team_members ADD COLUMN checkout_until         TEXT',
-  'ALTER TABLE team_members ADD COLUMN current_cycle_assigned INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE team_members ADD COLUMN is_checked_in           INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE team_members ADD COLUMN checked_in_at           TEXT',
+  'ALTER TABLE team_members ADD COLUMN checkout_until          TEXT',
+  'ALTER TABLE team_members ADD COLUMN current_cycle_assigned  INTEGER NOT NULL DEFAULT 0',
+  "ALTER TABLE team_members ADD COLUMN timezone                TEXT NOT NULL DEFAULT 'America/Chicago'",
+  'ALTER TABLE team_members ADD COLUMN last_auto_checkout_at   TEXT',
+  "ALTER TABLE team_members ADD COLUMN region TEXT NOT NULL DEFAULT 'US'",
+  "ALTER TABLE cycle_events ADD COLUMN region TEXT NOT NULL DEFAULT 'US'",
 ];
 for (const sql of migrations) {
   try { db.exec(sql); } catch {}
 }
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS schedule_entries (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    date       TEXT NOT NULL,
+    region     TEXT NOT NULL DEFAULT 'US',
+    member_id  INTEGER NOT NULL,
+    assignment TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (member_id) REFERENCES team_members(id) ON DELETE CASCADE
+  );
+`);
 
 module.exports = db;
