@@ -8,861 +8,1089 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
   <style>
+    /* ── Reset ───────────────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── Light mode ── */
+    /* ── Tokens ──────────────────────────────────────────────────────────────── */
     :root {
-      --page-bg:      #F2F2F7;
-      --yellow:       #FBCE07;
-      --yellow-dark:  #E6B800;
-      --red:          #DD1D21;
-      --dark:         #1C1C1E;
-      --mid:          #6E6E73;
-      --light:        #E5E5EA;
-      --border:       rgba(60,60,67,0.12);
-      --white:        #FFFFFF;
-      --green:        #34C759;
-      --green-bg:     #E8FBE8;
-      --green-border: rgba(52,199,89,0.25);
-      --amber:        #FF9F0A;
-      --amber-bg:     #FFF5E0;
-      --amber-border: rgba(255,159,10,0.3);
-      --shadow-sm:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-md:    0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
-      --shadow-lg:    0 20px 60px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.06);
-      --cycle-bg:     #FFFBE6;
-      --cycle-border: rgba(230,184,0,0.25);
-      --blur:         blur(20px);
+      --bg:             #F0F2F7;
+      --surface:        #FFFFFF;
+      --surface-2:      #F7F8FB;
+      --sidebar-bg:     #13162B;
+      --sidebar-hover:  rgba(255,255,255,0.06);
+      --sidebar-active: rgba(251,206,7,0.13);
+      --yellow:         #FBCE07;
+      --yellow-dk:      #D4AE00;
+      --yellow-glow:    rgba(251,206,7,0.28);
+      --red:            #EF4444;
+      --green:          #10B981;
+      --amber:          #F59E0B;
+      --blue:           #3B82F6;
+      --text-1:         #0F1624;
+      --text-2:         #64748B;
+      --text-3:         #94A3B8;
+      --border:         rgba(15,22,36,0.09);
+      --border-2:       rgba(15,22,36,0.05);
+      --shadow-xs:      0 1px 2px rgba(0,0,0,0.04);
+      --shadow-sm:      0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md:      0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+      --shadow-lg:      0 24px 48px rgba(0,0,0,0.14), 0 6px 16px rgba(0,0,0,0.08);
+      --r-sm:           6px;
+      --r:              10px;
+      --r-lg:           14px;
+      --sidebar-w:      224px;
+      --green-bg:       #ECFDF5;
+      --green-bd:       rgba(16,185,129,0.22);
+      --amber-bg:       #FFFBEB;
+      --amber-bd:       rgba(245,158,11,0.22);
+      --red-bg:         #FEF2F2;
+      --red-bd:         rgba(239,68,68,0.22);
     }
 
-    /* ── Dark mode ── */
     [data-theme="dark"] {
-      --page-bg:      #000000;
-      --dark:         #F5F5F7;
-      --mid:          #98989D;
-      --light:        #1C1C1E;
-      --border:       rgba(255,255,255,0.10);
-      --white:        #1C1C1E;
-      --green:        #32D74B;
-      --green-bg:     rgba(50,215,75,0.12);
-      --green-border: rgba(50,215,75,0.2);
-      --amber:        #FF9F0A;
-      --amber-bg:     rgba(255,159,10,0.12);
-      --amber-border: rgba(255,159,10,0.2);
-      --shadow-sm:    0 1px 3px rgba(0,0,0,0.4);
-      --shadow-md:    0 4px 16px rgba(0,0,0,0.5);
-      --shadow-lg:    0 20px 60px rgba(0,0,0,0.7), 0 4px 16px rgba(0,0,0,0.4);
-      --cycle-bg:     rgba(251,206,7,0.08);
-      --cycle-border: rgba(251,206,7,0.15);
+      --bg:             #0B0D1A;
+      --surface:        #141726;
+      --surface-2:      #1A1D30;
+      --sidebar-bg:     #080A14;
+      --text-1:         #EEF2FF;
+      --text-2:         #8B95B0;
+      --text-3:         #5B6580;
+      --border:         rgba(255,255,255,0.07);
+      --border-2:       rgba(255,255,255,0.04);
+      --shadow-xs:      0 1px 2px rgba(0,0,0,0.35);
+      --shadow-sm:      0 1px 4px rgba(0,0,0,0.45);
+      --shadow-md:      0 4px 16px rgba(0,0,0,0.5);
+      --shadow-lg:      0 24px 48px rgba(0,0,0,0.7);
+      --green-bg:       rgba(16,185,129,0.09);
+      --green-bd:       rgba(16,185,129,0.18);
+      --amber-bg:       rgba(245,158,11,0.09);
+      --amber-bd:       rgba(245,158,11,0.18);
+      --red-bg:         rgba(239,68,68,0.09);
+      --red-bd:         rgba(239,68,68,0.18);
     }
 
+    /* ── Base ────────────────────────────────────────────────────────────────── */
+    html, body { height: 100%; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
-      background: var(--page-bg);
-      color: var(--dark);
-      min-height: 100vh;
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont,
+                   'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      font-size: 14px;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      transition: background 0.3s, color 0.3s;
+      transition: background 0.25s, color 0.25s;
     }
 
-    /* ── Header ── */
-    .header {
-      background: rgba(255,255,255,0.72);
-      backdrop-filter: var(--blur);
-      -webkit-backdrop-filter: var(--blur);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 50;
+    /* ── Sidebar ─────────────────────────────────────────────────────────────── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow: hidden;
+      border-right: 1px solid rgba(255,255,255,0.04);
     }
-    [data-theme="dark"] .header {
-      background: rgba(28,28,30,0.72);
+
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      flex-shrink: 0;
     }
-    .header-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      height: 60px;
+    .sb-logo {
+      width: 38px; height: 38px;
+      background: var(--yellow);
+      border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sb-logo img { width: 24px; height: 24px; object-fit: contain; display: block; }
+    .sb-title { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.025em; line-height: 1.2; }
+    .sb-sub   { font-size: 10.5px; color: rgba(255,255,255,0.3); font-weight: 400; margin-top: 1px; }
+
+    .sb-nav { padding: 10px 10px 0; flex-shrink: 0; }
+    .sb-section-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 12px 8px 5px;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 10px;
+      border-radius: var(--r);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.48);
+      font-size: 13px;
+      font-weight: 500;
+      width: 100%;
+      text-align: left;
+      transition: background 0.15s, color 0.15s;
+      font-family: inherit;
+      margin-bottom: 2px;
+    }
+    .nav-btn:hover  { background: var(--sidebar-hover); color: rgba(255,255,255,0.8); }
+    .nav-btn.active { background: var(--sidebar-active); color: var(--yellow); font-weight: 600; }
+    .nav-ico { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+
+    /* Region */
+    .sb-region { padding: 10px 10px 0; flex-shrink: 0; }
+    .region-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0 0 7px 0;
+    }
+    .region-btns { display: flex; gap: 5px; }
+    .region-btn {
+      flex: 1;
+      padding: 6px 0;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--r-sm);
+      background: transparent;
+      color: rgba(255,255,255,0.38);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .region-btn:hover  { border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.7); }
+    .region-btn.active { background: var(--yellow); border-color: var(--yellow); color: #111; }
+
+    /* Stats panel */
+    .sb-stats { padding: 14px 10px 0; flex: 1; overflow: hidden; }
+    .sb-stat {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      margin-bottom: 5px;
     }
-    .header-brand { display: flex; align-items: center; gap: 0.875rem; }
-    .brand-mark {
-      width: 40px; height: 40px;
-      background: var(--yellow);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
+    .sb-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; }
+    .sb-stat-val { font-size: 15px; font-weight: 800; color: rgba(255,255,255,0.75); letter-spacing: -0.02em; }
+    .sb-stat-val.green { color: var(--green); }
+
+    /* Bottom */
+    .sb-bottom {
+      padding: 12px 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
       flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(251,206,7,0.4);
-      overflow: hidden;
     }
-    .brand-mark img { width: 28px; height: 28px; object-fit: contain; }
-
-    .brand-name {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--dark);
-      letter-spacing: -0.03em;
-    }
-    .brand-sub { font-size: 0.72rem; color: var(--mid); margin-top: 0.05rem; font-weight: 400; letter-spacing: 0; }
-
-    .header-right { display: flex; align-items: center; gap: 1.25rem; }
-    .header-stats { display: flex; align-items: center; gap: 1.25rem; }
-    .hstat { text-align: center; }
-    .hstat-val { font-size: 1.25rem; font-weight: 700; color: var(--dark); line-height: 1; letter-spacing: -0.03em; }
-    .hstat-val.green { color: var(--green); }
-    .hstat-lbl { font-size: 0.65rem; color: var(--mid); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.15rem; font-weight: 500; }
-    .hstat-divider { width: 1px; height: 24px; background: var(--border); }
-
-    .theme-toggle {
-      width: 32px; height: 32px;
-      background: var(--light);
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 0.9rem;
-      line-height: 1;
-      color: var(--mid);
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s, transform 0.15s;
-    }
-    .theme-toggle:hover { background: var(--border); transform: scale(1.08); }
-
-    /* ── Layout ── */
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 1.5rem 2rem;
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      grid-template-rows: auto;
-      gap: 1.25rem;
-      align-items: start;
-    }
-    .top-bar {
-      grid-column: 1 / -1;
-    }
-    .top-bar .card-title { margin-bottom: 0.75rem; }
-    .top-bar form { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; }
-    .top-bar .form-row { display: flex; gap: 0.75rem; flex: 0 0 auto; }
-    .top-bar .form-row .field input { width: 160px; }
-    .top-bar .btn-register { width: auto; margin-top: 0; white-space: nowrap; padding: 0.6rem 1.25rem; }
-    .top-bar .form-error { width: 100%; }
-
-    .left-col  { display: flex; flex-direction: column; gap: 1rem; }
-    .right-col { display: flex; flex-direction: column; gap: 1rem; }
-
-    /* ── Cards ── */
-    .card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 1.25rem;
-      box-shadow: var(--shadow-sm);
-    }
-    .card-title {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--mid);
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      margin-bottom: 1rem;
+    .theme-btn {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 9px;
+      width: 100%;
+      padding: 9px 10px;
+      background: transparent;
+      border: none;
+      border-radius: var(--r);
+      color: rgba(255,255,255,0.4);
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      font-family: inherit;
+      font-weight: 500;
     }
-    .card-badge {
-      background: var(--light);
-      color: var(--mid);
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 0.1rem 0.5rem;
-      border-radius: 999px;
-      margin-left: auto;
+    .theme-btn:hover { background: var(--sidebar-hover); color: rgba(255,255,255,0.7); }
+
+    /* ── Main layout ─────────────────────────────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      padding: 22px;
     }
 
-    /* ── Cycle legend ── */
+    /* ── Cards ───────────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-2);
+    }
+    .card-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+    .card-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-3);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .card-body { padding: 14px 18px; }
+
+    /* ── Assigner grid ───────────────────────────────────────────────────────── */
+    .assigner-grid {
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .a-left, .a-right { display: flex; flex-direction: column; gap: 14px; }
+
+    /* ── Add-member form ─────────────────────────────────────────────────────── */
+    .add-form { padding: 14px 18px; }
+    .form-row { display: flex; gap: 9px; align-items: flex-end; flex-wrap: wrap; }
+    .field { flex: 1; min-width: 100px; }
+    .field label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 5px;
+    }
+    .field input {
+      width: 100%;
+      padding: 8px 11px;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--surface-2);
+      color: var(--text-1);
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input:focus {
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 3px rgba(251,206,7,0.14);
+      background: var(--surface);
+    }
+    .field input::placeholder { color: var(--text-3); }
+    .form-error { font-size: 11.5px; color: var(--red); margin-top: 7px; }
+    .btn-add {
+      padding: 8px 16px;
+      background: var(--yellow);
+      color: #111;
+      border: none;
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      font-family: inherit;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-add:hover:not(:disabled)  { background: var(--yellow-dk); }
+    .btn-add:active:not(:disabled) { transform: scale(0.97); }
+    .btn-add:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── Member cards ────────────────────────────────────────────────────────── */
+    .member-list { display: flex; flex-direction: column; gap: 5px; }
+    .empty-state {
+      padding: 28px 16px;
+      text-align: center;
+      color: var(--text-3);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .member-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      transition: box-shadow 0.15s, opacity 0.2s;
+    }
+    .member-wrap.status-in    { border-left: 3px solid var(--green); }
+    .member-wrap.status-timed { border-left: 3px solid var(--amber); }
+    .member-wrap.status-out   { border-left: 3px solid transparent; opacity: 0.65; }
+    .member-wrap.assigned     { opacity: 0.38; }
+    .member-wrap.draggable:hover { box-shadow: var(--shadow-md); opacity: 1 !important; }
+    .member-wrap.is-dragging  { opacity: 0.35; }
+
+    .member-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 12px;
+    }
+    .member-row.draggable { cursor: grab; }
+    .member-row.is-dragging { cursor: grabbing; }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-dot.in    { background: var(--green); box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
+    .status-dot.timed { background: var(--amber); box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+    .status-dot.out   { background: var(--text-3); }
+
+    .member-info { flex: 1; min-width: 0; }
+    .member-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .member-sub {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 1px;
+    }
+    .member-count {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-3);
+      min-width: 24px;
+      text-align: right;
+    }
+    .member-actions { display: flex; align-items: center; gap: 4px; }
+
+    .btn-sm {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid;
+      transition: all 0.15s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn-sm.checkin  { background: var(--green-bg); color: var(--green); border-color: var(--green-bd); }
+    .btn-sm.checkin:hover  { background: var(--green); color: #fff; border-color: var(--green); }
+    .btn-sm.checkout { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bd); }
+    .btn-sm.checkout:hover { background: var(--amber); color: #fff; border-color: var(--amber); }
+
+    .btn-icon {
+      width: 26px; height: 26px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-3);
+      font-size: 11px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn-icon:hover { background: var(--red-bg); color: var(--red); border-color: var(--red-bd); }
+
+    .confirm-inline {
+      display: flex; align-items: center; gap: 5px;
+    }
+    .confirm-inline .lbl { font-size: 11px; color: var(--red); font-weight: 600; }
+    .btn-cy, .btn-cn {
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-cy { background: var(--red); color: #fff; border-color: var(--red); }
+    .btn-cn { background: transparent; color: var(--text-2); border-color: var(--border); }
+    .btn-cn:hover { background: var(--surface-2); }
+
+    /* Checkout panel */
+    .checkout-panel {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+      padding: 9px 12px 10px;
+      background: var(--surface-2);
+      border-top: 1px solid var(--border-2);
+    }
+    .co-label { font-size: 11.5px; color: var(--text-2); font-weight: 500; }
+    .mins-input {
+      width: 50px;
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 12.5px;
+      background: var(--surface);
+      color: var(--text-1);
+      font-family: inherit;
+      outline: none;
+      text-align: center;
+    }
+    .mins-input:focus { border-color: var(--yellow); }
+    .co-unit { font-size: 11.5px; color: var(--text-3); }
+    .btn-dur {
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-1);
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn-dur:hover { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bd); }
+    .btn-dur.cancel { color: var(--text-3); }
+    .btn-dur.cancel:hover { background: var(--surface-2); color: var(--text-2); border-color: var(--border); }
+
+    /* ── Cycle legend ────────────────────────────────────────────────────────── */
     .cycle-legend {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      margin-bottom: 0.75rem;
-      font-size: 0.72rem;
-      color: var(--mid);
-      padding: 0.45rem 0.75rem;
-      background: var(--cycle-bg);
-      border: 1px solid var(--cycle-border);
-      border-radius: 10px;
+      gap: 7px;
+      padding: 7px 11px;
+      background: rgba(251,206,7,0.07);
+      border: 1px solid rgba(251,206,7,0.18);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--text-2);
       font-weight: 500;
+      margin-bottom: 10px;
     }
-
-    /* ── Form ── */
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
-    .field { display: flex; flex-direction: column; gap: 0.3rem; }
-    .field label {
-      font-size: 0.68rem; font-weight: 600; color: var(--mid);
-      text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .field input {
-      padding: 0.6rem 0.9rem;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.9rem;
-      color: var(--dark);
-      background: var(--page-bg);
-      outline: none;
-      font-family: inherit;
-      -webkit-font-smoothing: antialiased;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .field input::placeholder { color: var(--mid); opacity: 0.5; }
-    .field input:focus {
-      border-color: var(--yellow-dark);
-      box-shadow: 0 0 0 3.5px rgba(251,206,7,0.22);
-    }
-    .form-error { font-size: 0.78rem; color: var(--red); margin-top: 0.25rem; }
-    .btn-register {
-      width: 100%; margin-top: 0.75rem; padding: 0.65rem;
-      background: var(--yellow); color: var(--dark);
-      border: none; border-radius: 10px;
-      font-size: 0.875rem; font-weight: 600; cursor: pointer;
-      font-family: inherit;
-      letter-spacing: -0.01em;
-      transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
-      box-shadow: 0 2px 8px rgba(251,206,7,0.35);
-    }
-    .btn-register:hover:not(:disabled) {
-      background: var(--yellow-dark);
-      box-shadow: 0 4px 12px rgba(251,206,7,0.45);
-      transform: translateY(-1px);
-    }
-    .btn-register:active { transform: translateY(0); }
-    .btn-register:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
-
-    /* ── Member list ── */
-    .member-list { display: flex; flex-direction: column; gap: 0.45rem; max-height: 520px; overflow-y: auto; }
-
-    /* ── Member card ── */
-    .member-card {
-      border: 1px solid rgba(251,206,7,0.35);
-      border-radius: 12px;
-      padding: 0.75rem 1rem;
-      background: rgba(251,206,7,0.08);
-      transition: box-shadow 0.2s, background 0.25s, opacity 0.25s, border-color 0.25s;
-      animation: slideIn 0.22s ease;
-    }
-    [data-theme="dark"] .member-card { background: rgba(251,206,7,0.06); border-color: rgba(251,206,7,0.18); }
-    .member-card.in    { background: rgba(251,206,7,0.13); border-color: rgba(251,206,7,0.4); box-shadow: var(--shadow-sm); }
-    [data-theme="dark"] .member-card.in { background: rgba(251,206,7,0.09); }
-    .member-card.timed { background: var(--amber-bg); border-color: var(--amber-border); }
-    .member-card.out   { background: var(--light); border-color: var(--border); opacity: 0.55; }
-    [data-theme="dark"] .member-card.out { background: #2C2C2E; }
-
-    /* Assigned this cycle — grey out visually, all interactions still work */
-    .member-card.assigned {
-      background: var(--light);
-      border-color: var(--border);
-      opacity: 0.5;
-    }
-    [data-theme="dark"] .member-card.assigned { background: #2C2C2E; border-color: rgba(255,255,255,0.07); }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Member card rows */
-    .member-name-row {
-      display: flex; align-items: center; gap: 0.55rem;
-      margin-bottom: 0.5rem;
-    }
-    .member-actions-row {
-      display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
-    }
-
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .status-dot.in    { background: var(--green); box-shadow: 0 0 0 2.5px rgba(52,199,89,0.2); }
-    .status-dot.timed { background: var(--amber); box-shadow: 0 0 0 2.5px rgba(255,159,10,0.2); }
-    .status-dot.out   { background: var(--mid); opacity: 0.4; }
-
-    .member-name {
-      font-size: 0.92rem; font-weight: 600; color: var(--dark);
-      letter-spacing: -0.02em; flex: 1; min-width: 0;
-    }
-    .member-actions-spacer { flex: 1; }
-
-    /* Lightning bolt indicator */
-    .lightning {
-      font-size: 0.85rem;
-      line-height: 1;
+    .cy-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--yellow);
       flex-shrink: 0;
-      animation: boltPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    @keyframes boltPop {
-      from { transform: scale(0); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
     }
 
-    .status-badge {
-      font-size: 0.65rem; font-weight: 600;
-      padding: 0.2rem 0.55rem; border-radius: 999px; white-space: nowrap;
-      letter-spacing: 0.01em;
-    }
-    .status-badge.in    { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
-    .status-badge.timed { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-border); }
-    .status-badge.out   { background: var(--light);     color: var(--mid);    border: 1px solid var(--border); }
-
-    .assign-count { font-size: 0.65rem; color: var(--mid); white-space: nowrap; font-weight: 500; }
-
-    .btn-sm {
-      font-size: 0.72rem; font-weight: 600;
-      padding: 0.28rem 0.65rem; border-radius: 999px;
-      cursor: pointer; border: 1.5px solid; white-space: nowrap;
-      font-family: inherit;
-      transition: all 0.12s;
-    }
-    .btn-checkin  { background: var(--yellow); color: var(--dark); border-color: var(--yellow-dark); }
-    .btn-checkin:hover { background: var(--yellow-dark); }
-    .btn-checkout { background: transparent; color: var(--mid); border-color: var(--border); }
-    .btn-checkout:hover { color: var(--dark); border-color: var(--mid); }
-.btn-remove   { background: none; color: var(--mid); border-color: transparent; padding: 0.28rem 0.45rem; opacity: 0.5; }
-    .btn-remove:hover { color: var(--red); opacity: 1; }
-
-    .confirm-remove { display: flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; color: var(--mid); }
-    .btn-confirm-yes {
-      font-size: 0.68rem; font-weight: 700; padding: 0.22rem 0.5rem;
-      border-radius: 999px; cursor: pointer; border: none;
-      background: rgba(221,29,33,0.1); color: var(--red); font-family: inherit;
-    }
-    .btn-confirm-no {
-      font-size: 0.68rem; padding: 0.22rem 0.5rem; border-radius: 999px; cursor: pointer;
-      border: 1px solid var(--border); background: var(--white); color: var(--mid); font-family: inherit;
-    }
-
-    /* ── Checkout panel ── */
-    .checkout-panel {
-      margin-top: 0.6rem; padding-top: 0.6rem;
-      border-top: 1px solid var(--border);
-      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
-    }
-    .checkout-label { font-size: 0.72rem; color: var(--mid); font-weight: 600; white-space: nowrap; }
-    .mins-input {
-      width: 56px; padding: 0.28rem 0.5rem;
-      border: 1.5px solid var(--border); border-radius: 8px;
-      font-size: 0.82rem; color: var(--dark); background: var(--white);
-      outline: none; text-align: center; font-family: inherit;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .mins-input:focus { border-color: var(--yellow-dark); box-shadow: 0 0 0 3px rgba(251,206,7,0.2); }
-    .mins-label { font-size: 0.72rem; color: var(--mid); }
-    .btn-dur {
-      font-size: 0.72rem; font-weight: 600; padding: 0.28rem 0.7rem;
-      border-radius: 999px; cursor: pointer; font-family: inherit;
-      border: 1.5px solid var(--yellow-dark);
-      background: var(--yellow); color: var(--dark);
-      transition: all 0.12s;
-    }
-    .btn-dur:hover { background: var(--yellow-dark); }
-    .btn-dur.rest  { background: transparent; color: var(--mid); border-color: var(--border); }
-    .btn-dur.rest:hover { color: var(--dark); border-color: var(--mid); }
-    .btn-dur.cancel { background: none; color: var(--mid); border-color: transparent; }
-    .btn-dur.cancel:hover { color: var(--dark); }
-
-    /* ── Empty state ── */
-    .empty { text-align: center; padding: 2rem 1rem; color: var(--mid); font-size: 0.85rem; line-height: 1.7; }
-
-    /* ── Assign card ── */
-    .assign-card { text-align: center; padding: 2rem 1.5rem; }
-    .assign-card .card-title { justify-content: center; }
-    .stats-row { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    /* ── Assign card ─────────────────────────────────────────────────────────── */
+    .assign-body { padding: 14px 18px; }
+    .stats-row { display: flex; gap: 8px; margin-bottom: 14px; }
     .stat-chip {
-      text-align: center; padding: 0.65rem 1.1rem;
-      background: var(--page-bg); border: 1px solid var(--border); border-radius: 14px; min-width: 74px;
+      flex: 1;
+      padding: 10px 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      text-align: center;
     }
-    .stat-chip .val { font-size: 1.5rem; font-weight: 700; color: var(--dark); display: block; letter-spacing: -0.04em; }
+    .stat-chip .val {
+      display: block;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-1);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
     .stat-chip .val.green { color: var(--green); }
-    .stat-chip .lbl { font-size: 0.62rem; color: var(--mid); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; margin-top: 0.1rem; }
+    .stat-chip .lbl {
+      display: block;
+      font-size: 9.5px;
+      color: var(--text-3);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-top: 4px;
+    }
 
     .btn-assign {
-      background: var(--yellow); color: var(--dark);
-      border: 2px dashed transparent; border-radius: 999px;
-      font-size: 1rem; font-weight: 700; padding: 0.875rem 2.75rem;
-      cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
-      box-shadow: 0 4px 16px rgba(251,206,7,0.45);
-      transition: background 0.15s, box-shadow 0.15s, transform 0.12s, border-color 0.15s, padding 0.15s;
+      display: block;
+      width: 100%;
+      padding: 15px;
+      background: var(--yellow);
+      color: #111;
+      border: none;
+      border-radius: var(--r);
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+      font-family: inherit;
+      letter-spacing: -0.01em;
     }
-    .btn-assign:hover:not(:disabled):not(.drop-over) {
-      background: var(--yellow-dark);
-      box-shadow: 0 6px 20px rgba(251,206,7,0.55);
+    .btn-assign:hover:not(:disabled) {
+      background: var(--yellow-dk);
       transform: translateY(-1px);
+      box-shadow: 0 6px 18px var(--yellow-glow);
     }
-    .btn-assign:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(251,206,7,0.3); }
-    .btn-assign:disabled { background: var(--light); color: var(--mid); box-shadow: none; cursor: not-allowed; }
-
-    /* Drop zone active state */
+    .btn-assign:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
+    .btn-assign:disabled { opacity: 0.38; cursor: not-allowed; }
     .btn-assign.drop-over {
-      background: var(--yellow-dark);
-      border-color: var(--dark);
-      box-shadow: 0 0 0 4px rgba(251,206,7,0.35), 0 6px 24px rgba(251,206,7,0.6);
-      transform: scale(1.06);
+      background: var(--green);
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(16,185,129,0.3);
     }
 
-    /* Dragging hint text under button */
+    .assign-hint {
+      font-size: 11.5px;
+      color: var(--text-3);
+      text-align: center;
+      margin-top: 9px;
+      line-height: 1.5;
+    }
     .assign-drag-hint {
-      margin-top: 0.75rem;
-      font-size: 0.72rem;
-      color: var(--mid);
-      opacity: 0;
-      transition: opacity 0.2s;
-      pointer-events: none;
+      font-size: 11.5px;
+      color: var(--green);
+      text-align: center;
+      margin-top: 9px;
+      font-weight: 600;
+      display: none;
     }
-    .assign-drag-hint.visible { opacity: 1; }
+    .assign-drag-hint.visible { display: block; }
 
-    .assign-hint { margin-top: 1rem; font-size: 0.78rem; color: var(--mid); line-height: 1.6; }
-
-    /* ── Balance mode toggle ── */
+    /* Balance toggle */
     .balance-row {
-      display: flex; align-items: center; justify-content: center;
-      gap: 0.6rem; margin-top: 1.1rem; cursor: pointer; user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      cursor: pointer;
+      padding: 10px 12px;
+      background: var(--surface-2);
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      transition: border-color 0.15s;
+      user-select: none;
     }
-    .balance-label {
-      font-size: 0.8rem; font-weight: 600; color: var(--mid);
-      letter-spacing: -0.01em; transition: color 0.2s;
-    }
-    .balance-label.active { color: var(--dark); }
+    .balance-row:hover { border-color: rgba(251,206,7,0.4); }
     .toggle-track {
-      width: 42px; height: 24px;
-      background: var(--light);
-      border: 1.5px solid var(--border);
+      width: 32px; height: 18px;
+      background: var(--border);
       border-radius: 999px;
       position: relative;
-      transition: background 0.22s, border-color 0.22s;
+      transition: background 0.2s;
       flex-shrink: 0;
     }
-    .toggle-track.on { background: var(--yellow); border-color: var(--yellow-dark); }
+    .toggle-track.on { background: var(--yellow); }
     .toggle-thumb {
-      width: 18px; height: 18px;
-      background: #fff;
-      border-radius: 50%;
       position: absolute;
       top: 2px; left: 2px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.22);
-      transition: transform 0.22s cubic-bezier(0.34,1.4,0.64,1);
+      width: 14px; height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
     }
-    .toggle-track.on .toggle-thumb { transform: translateX(18px); }
+    .toggle-track.on .toggle-thumb { left: 16px; }
+    .balance-lbl { font-size: 12.5px; font-weight: 600; color: var(--text-2); flex: 1; }
+    .balance-lbl.on { color: #7a6200; }
+    [data-theme="dark"] .balance-lbl.on { color: var(--yellow); }
     .balance-desc {
-      font-size: 0.72rem; color: var(--mid); line-height: 1.5;
-      margin-top: 0.5rem; padding: 0.55rem 0.85rem;
-      background: var(--page-bg); border-radius: 10px;
-      border: 1px solid var(--border);
-      animation: slideIn 0.18s ease;
+      font-size: 11.5px;
+      color: var(--text-2);
+      margin-top: 8px;
+      line-height: 1.6;
     }
 
-    /* Draggable member cards */
-    .member-card.draggable { cursor: grab; }
-    .member-card.draggable:active { cursor: grabbing; }
-    .member-card.is-dragging { opacity: 0.4; transform: scale(0.98); }
-
-    /* ── History ── */
-    .history-list { display: flex; flex-direction: column; gap: 0.35rem; max-height: 360px; overflow-y: auto; }
+    /* ── History ─────────────────────────────────────────────────────────────── */
+    .history-list {}
     .history-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0.6rem 0.85rem;
-      background: var(--page-bg); border-radius: 10px; font-size: 0.83rem;
-      animation: slideIn 0.22s ease;
-      transition: background 0.2s, opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border-2);
+      transition: opacity 0.15s;
     }
-    .history-item.current {
-      background: rgba(251,206,7,0.12);
-      border: 1px solid rgba(251,206,7,0.3);
+    .history-item:last-child { border-bottom: none; }
+    .history-item.prev { opacity: 0.45; }
+    .h-name { font-size: 13px; font-weight: 600; color: var(--text-1); }
+    .h-ts   { font-size: 10.5px; color: var(--text-3); margin-top: 1px; }
+    .h-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--green);
+      background: var(--green-bg);
+      border: 1px solid var(--green-bd);
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
     }
-    .history-item.current .history-name  { color: #7A6000; }
-    .history-item.current .history-ts    { color: #A08000; }
-    .history-item.current .history-check { color: #A08000; }
-    [data-theme="dark"] .history-item.current { background: rgba(251,206,7,0.10); border-color: rgba(251,206,7,0.2); }
-    [data-theme="dark"] .history-item.current .history-name  { color: #FBCE07; }
-    [data-theme="dark"] .history-item.current .history-ts    { color: #C4A000; }
-    [data-theme="dark"] .history-item.current .history-check { color: #C4A000; }
-    .history-item.prev { opacity: 0.4; }
-    .history-name  { font-weight: 600; color: var(--dark); letter-spacing: -0.01em; }
-    .history-ts    { font-size: 0.68rem; color: var(--mid); margin-top: 0.1rem; }
-    .history-check { color: var(--green); font-weight: 600; font-size: 0.72rem; white-space: nowrap; }
-
-    /* Cycle marker row */
     .cycle-marker {
-      display: flex; align-items: center; gap: 0.6rem;
-      padding: 0.25rem 0;
-      animation: slideIn 0.22s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
     }
-    .cycle-marker-line { flex: 1; height: 1px; background: var(--yellow-dark); opacity: 0.4; }
-    .cycle-marker-text {
-      font-size: 0.65rem; font-weight: 600; color: var(--mid);
-      white-space: nowrap; letter-spacing: 0.04em; text-transform: uppercase;
-      display: flex; align-items: center; gap: 0.3rem;
+    .cy-line { flex: 1; height: 1px; background: var(--border); }
+    .cy-text {
+      font-size: 10px;
+      color: var(--text-3);
+      font-weight: 600;
+      white-space: nowrap;
     }
 
-    /* ── Modal ── */
+    /* ── Upcoming ────────────────────────────────────────────────────────────── */
+    .upcoming-week-lbl {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-3);
+      margin: 6px 0 5px;
+    }
+    .upcoming-row {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      font-size: 12.5px;
+      padding: 3px 0;
+      flex-wrap: wrap;
+    }
+    .upcoming-role { font-weight: 700; font-size: 11.5px; }
+    .upcoming-sep  { color: var(--text-3); font-size: 11px; }
+    .upcoming-who  { color: var(--text-1); font-weight: 500; }
+    .upcoming-days { color: var(--text-3); font-size: 11px; }
+    .upcoming-empty { font-size: 12px; color: var(--text-3); padding: 3px 0; font-style: italic; }
+
+    /* ── Reset ───────────────────────────────────────────────────────────────── */
+    .reset-body { padding: 14px 18px; }
+    .btn-reset {
+      font-size: 12px;
+      color: var(--text-3);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      font-weight: 500;
+    }
+    .btn-reset:hover { color: var(--red); border-color: var(--red-bd); background: var(--red-bg); }
+    .reset-confirm-desc {
+      font-size: 12px;
+      color: var(--text-2);
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+    .reset-actions { display: flex; gap: 7px; }
+    .btn-reset-do {
+      padding: 6px 14px;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-reset-do:hover { background: #dc2626; }
+    .btn-reset-cancel {
+      padding: 6px 12px;
+      background: transparent;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-reset-cancel:hover { background: var(--surface-2); }
+
+    /* ── Pick modal ──────────────────────────────────────────────────────────── */
     .overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 100; animation: fadeIn 0.18s ease;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(7,9,20,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 20px;
     }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
     .modal {
-      background: var(--white); border-radius: 22px;
-      width: 92%; max-width: 400px;
+      background: var(--surface);
+      border-radius: 20px;
       box-shadow: var(--shadow-lg);
-      overflow: hidden; animation: slideUp 0.22s cubic-bezier(0.34,1.3,0.64,1);
+      width: 100%;
+      max-width: 370px;
+      overflow: hidden;
       border: 1px solid var(--border);
     }
-    @keyframes slideUp {
-      from { transform: translateY(20px) scale(0.97); opacity: 0; }
-      to   { transform: translateY(0) scale(1);       opacity: 1; }
+    .modal-top {
+      background: var(--yellow);
+      padding: 22px 24px 20px;
     }
-    .modal-header { background: var(--yellow); padding: 1.5rem 1.5rem 1.25rem; text-align: center; }
-    .modal-header-label {
-      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.1em; color: rgba(64,64,64,0.55); margin-bottom: 0.35rem;
+    .modal-eyebrow {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(0,0,0,0.4);
+      margin-bottom: 4px;
     }
-    .modal-name { font-size: 1.75rem; font-weight: 700; color: #1C1C1E; letter-spacing: -0.04em; }
-    .modal-body { padding: 1.25rem 1.5rem 1.5rem; }
-    .modal-stats {
-      background: var(--page-bg); border-radius: 12px; padding: 0.75rem 1rem;
-      font-size: 0.82rem; color: var(--mid); margin-bottom: 1.1rem;
-      display: flex; justify-content: space-between; border: 1px solid var(--border);
+    .modal-name {
+      font-size: 26px;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
     }
-    .modal-question { font-size: 0.92rem; font-weight: 600; color: var(--dark); text-align: center; margin-bottom: 1rem; letter-spacing: -0.01em; }
-    .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+    .modal-body { padding: 20px 24px 22px; }
+    .modal-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+    .modal-meta-row { font-size: 13px; color: var(--text-2); }
+    .modal-meta-row strong { color: var(--text-1); }
+    .modal-q {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1);
+      margin-bottom: 14px;
+    }
+    .modal-acts { display: flex; flex-direction: column; gap: 8px; }
     .btn-modal-yes {
-      padding: 0.75rem; background: var(--green); color: #fff;
-      border: none; border-radius: 12px; font-size: 0.875rem; font-weight: 600;
-      cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
-      transition: filter 0.15s, transform 0.12s;
+      width: 100%;
+      padding: 13px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--r);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      font-family: inherit;
     }
-    .btn-modal-yes:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-modal-yes:hover  { background: #059669; }
+    .btn-modal-yes:active { transform: scale(0.98); }
     .btn-modal-no {
-      padding: 0.75rem; background: rgba(221,29,33,0.08); color: var(--red);
-      border: 1px solid rgba(221,29,33,0.18); border-radius: 12px;
-      font-size: 0.875rem; font-weight: 600; cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
-      transition: background 0.15s, transform 0.12s;
+      width: 100%;
+      padding: 13px;
+      background: var(--surface-2);
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
     }
-    .btn-modal-no:hover { background: rgba(221,29,33,0.13); transform: translateY(-1px); }
+    .btn-modal-no:hover { background: var(--red-bg); color: var(--red); border-color: var(--red-bd); }
 
-    /* ── Toast ── */
+    /* ── Toast ───────────────────────────────────────────────────────────────── */
     .toast {
-      position: fixed; bottom: 1.5rem; right: 1.5rem;
-      padding: 0.75rem 1.15rem; border-radius: 14px;
-      font-size: 0.82rem; font-weight: 600; font-family: inherit;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-      z-index: 200; animation: toastIn 0.28s cubic-bezier(0.34,1.3,0.64,1); max-width: 300px;
-      letter-spacing: -0.01em;
-      backdrop-filter: blur(12px);
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 12px 18px;
+      border-radius: var(--r);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      max-width: 300px;
+      animation: toast-slide 0.22s ease;
+      pointer-events: none;
     }
     .toast.success { background: var(--green); color: #fff; }
     .toast.error   { background: var(--red);   color: #fff; }
-    .toast.info    { background: rgba(28,28,30,0.88); color: #F5F5F7; }
-    [data-theme="dark"] .toast.info { background: rgba(255,255,255,0.14); color: var(--dark); }
-    @keyframes toastIn {
-      from { transform: translateX(16px) scale(0.95); opacity: 0; }
-      to   { transform: translateX(0) scale(1);       opacity: 1; }
-    }
-
-    /* ── Reset card ── */
-    .reset-card { padding: 1rem 1.25rem; }
-
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-    @media (max-width: 860px) {
-      .container { grid-template-columns: 1fr; padding: 1rem; }
-      .header-stats { display: none; }
-    }
-
-    /* ── Nav tabs ── */
-    .nav-tabs {
-      display: flex; align-items: center; gap: 0.25rem;
-      background: var(--light); border-radius: 10px; padding: 0.2rem;
-    }
-    .nav-tab {
-      padding: 0.35rem 0.85rem; border-radius: 8px; font-size: 0.82rem;
-      font-weight: 600; cursor: pointer; border: none; background: transparent;
-      color: var(--mid); font-family: inherit; transition: all 0.15s;
-      white-space: nowrap;
-    }
-    .nav-tab:hover { color: var(--dark); }
-    .nav-tab.active {
-      background: var(--white); color: var(--dark);
-      box-shadow: var(--shadow-sm);
-    }
-
-    /* ── Region pills ── */
-    .region-pills {
-      display: flex; align-items: center; gap: 0.25rem;
-      background: var(--light); border-radius: 10px; padding: 0.2rem;
-    }
-    .region-pill {
-      padding: 0.3rem 0.75rem; border-radius: 7px; font-size: 0.78rem;
-      font-weight: 700; cursor: pointer; border: none; background: transparent;
-      color: var(--mid); font-family: inherit; transition: all 0.15s;
-      letter-spacing: 0.03em;
-    }
-    .region-pill:hover { color: var(--dark); }
-    .region-pill.active {
-      background: var(--yellow); color: var(--dark);
-      box-shadow: 0 1px 4px rgba(251,206,7,0.4);
-    }
-
-    /* ── Scheduler wrapper ── */
-    .scheduler-wrap {
-      max-width: 1280px; margin: 0 auto; padding: 1.5rem 2rem;
-    }
-    .sched-nav {
-      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;
-    }
-    .sched-nav-btn {
-      width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--border);
-      background: var(--white); color: var(--dark); cursor: pointer; font-size: 1rem;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s; font-family: inherit;
-    }
-    .sched-nav-btn:hover { border-color: var(--yellow-dark); background: var(--yellow); }
-    .sched-nav-title {
-      font-size: 1.15rem; font-weight: 700; color: var(--dark);
-      letter-spacing: -0.03em; flex: 1;
-    }
-    .sched-today-btn {
-      padding: 0.35rem 0.85rem; border-radius: 8px; font-size: 0.78rem;
-      font-weight: 600; cursor: pointer; border: 1.5px solid var(--border);
-      background: var(--white); color: var(--mid); font-family: inherit;
-      transition: all 0.15s;
-    }
-    .sched-today-btn:hover { border-color: var(--yellow-dark); color: var(--dark); }
-
-    .sched-section { margin-bottom: 2rem; }
-    .sched-section-title {
-      font-size: 0.72rem; font-weight: 600; color: var(--mid);
-      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.75rem;
-    }
-
-    /* ── Shared table ── */
-    .sched-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); background: var(--white); }
-    .sched-table {
-      width: 100%; border-collapse: collapse; font-size: 0.82rem;
-    }
-    .sched-table th {
-      background: var(--page-bg); padding: 0.55rem 0.75rem;
-      font-size: 0.68rem; font-weight: 600; color: var(--mid);
-      text-transform: uppercase; letter-spacing: 0.06em;
-      border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center;
-    }
-    .sched-table th:first-child { text-align: left; }
-    .sched-table td {
-      padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--border);
-      vertical-align: middle; text-align: center;
-    }
-    .sched-table tr:last-child td { border-bottom: none; }
-
-    /* Summary count cells */
-    .sched-type-cell {
-      text-align: left !important; font-weight: 600; color: var(--dark);
-      white-space: nowrap; min-width: 140px;
-    }
-    .sched-count { font-weight: 600; color: var(--dark); }
-    .sched-count.zero { color: var(--mid); opacity: 0.4; font-weight: 400; }
-
-    /* Grid columns */
-    .sched-grid-table .wk-col { width: 40px; min-width: 40px; }
-    .sched-grid-table .dt-col { width: 50px; min-width: 44px; }
-    .sched-grid-table .dy-col { width: 36px; min-width: 32px; }
-    .wk-cell {
-      font-size: 0.65rem; font-weight: 700; color: var(--mid);
-      text-align: center !important; opacity: 0.6;
-    }
-    .dt-cell {
-      text-align: center !important; white-space: nowrap; color: var(--mid);
-      font-size: 0.78rem; font-weight: 600;
-    }
-    .dy-cell {
-      text-align: center !important; white-space: nowrap; color: var(--mid);
-      font-size: 0.72rem; font-weight: 500;
-    }
-    .sched-cell { min-width: 80px; }
-    .sched-pills { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; }
-    .sched-pill {
-      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px;
-      font-size: 0.68rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.02em;
-    }
-
-    /* Weekend & today row tints */
-    .sched-table tr.weekend td { background: rgba(0,0,0,0.025); }
-    [data-theme="dark"] .sched-table tr.weekend td { background: rgba(255,255,255,0.03); }
-    .sched-table tr.today td {
-      background: rgba(251,206,7,0.10);
-    }
-    [data-theme="dark"] .sched-table tr.today td {
-      background: rgba(251,206,7,0.07);
-    }
-
-    /* Empty scheduler state */
-    .sched-empty {
-      text-align: center; padding: 3rem 2rem; color: var(--mid);
-      font-size: 0.88rem; line-height: 1.8;
-      background: var(--white); border-radius: 14px; border: 1px solid var(--border);
-    }
-    .sched-empty code {
-      background: var(--page-bg); padding: 0.1rem 0.45rem;
-      border-radius: 6px; font-size: 0.82rem; color: var(--dark);
+    .toast.info    { background: var(--text-1); color: #fff; }
+    [data-theme="dark"] .toast.info {
+      background: var(--surface-2);
       border: 1px solid var(--border);
+      color: var(--text-1);
     }
-    @media (max-width: 860px) { .scheduler-wrap { padding: 1rem; } }
+    @keyframes toast-slide {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-    /* ── Upcoming coverage widget ─────────────────────────────────────────── */
-    .upcoming-empty { font-size: 0.82rem; color: var(--mid); text-align: center; padding: 1rem 0; }
-    .upcoming-week-label {
-      font-size: 0.65rem; font-weight: 700; color: var(--mid);
-      text-transform: uppercase; letter-spacing: 0.08em;
-      margin-bottom: 0.5rem; margin-top: 1rem; padding-bottom: 0.3rem;
+    /* ── Scheduler ───────────────────────────────────────────────────────────── */
+    .sched-subnav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
       border-bottom: 1px solid var(--border);
     }
-    .upcoming-week-label:first-child { margin-top: 0; }
-    .upcoming-role-row {
-      display: flex; align-items: center; gap: 0.55rem;
-      padding: 0.38rem 0; border-bottom: 1px solid var(--border);
-      font-size: 0.82rem;
+    .sched-tab {
+      padding: 7px 14px;
+      border-radius: var(--r-sm);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
     }
-    .upcoming-role-row:last-child { border-bottom: none; }
-    .upcoming-role-name { color: var(--mid); font-weight: 500; flex: 1; min-width: 0; }
-    .upcoming-role-member { color: var(--dark); font-weight: 600; white-space: nowrap; }
-
-    /* ── Roles editor ─────────────────────────────────────────────────────── */
-    .roles-hint { font-size: 0.8rem; color: var(--mid); margin-bottom: 1.1rem; line-height: 1.6; padding: 0.6rem 0.85rem; background: var(--page-bg); border: 1px solid var(--border); border-radius: 10px; }
-    .roles-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .roles-table th { font-size: 0.63rem; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.07em; padding: 0.4rem 0.75rem; text-align: left; border-bottom: 2px solid var(--border); }
-    .roles-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--dark); vertical-align: middle; }
-    .roles-table tbody tr:last-child td { border-bottom: none; }
-    .role-feat-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0.1rem 0.4rem; border-radius: 6px; transition: all 0.15s; color: var(--mid); line-height: 1; }
-    .role-feat-btn.active { color: var(--yellow-dark); }
-    .role-feat-btn:hover:not(:disabled) { background: var(--light); }
-    .role-del-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: var(--mid); padding: 0.2rem 0.45rem; border-radius: 6px; transition: all 0.15s; opacity: 0.5; }
-    .role-del-btn:hover:not(:disabled) { color: var(--red); opacity: 1; background: rgba(221,29,33,0.07); }
-    .role-rename-btn { background: none; border: none; cursor: pointer; font-size: 0.78rem; padding: 0.1rem 0.3rem; margin-left: 0.3rem; opacity: 0; border-radius: 5px; transition: all 0.15s; vertical-align: middle; }
-    tr:hover .role-rename-btn { opacity: 0.5; }
-    .role-rename-btn:hover { opacity: 1 !important; background: var(--light); }
-    .roles-add-section { margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--border); }
-    .roles-add-label { font-size: 0.62rem; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 0.25rem; }
-    .roles-add-input { width: 100%; padding: 0.5rem 0.75rem; border: 1.5px solid var(--border); border-radius: 10px; font-size: 0.85rem; color: var(--dark); background: var(--page-bg); outline: none; font-family: inherit; transition: border-color 0.15s; }
-    .roles-add-input:focus { border-color: var(--yellow-dark); box-shadow: 0 0 0 3px rgba(251,206,7,0.2); }
-    .color-presets { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
-    .color-swatch { width: 24px; height: 24px; border-radius: 6px; cursor: pointer; border: 2.5px solid transparent; transition: transform 0.12s, border-color 0.12s; overflow: hidden; }
-    .color-swatch:hover { transform: scale(1.18); }
-    .color-swatch.selected { border-color: var(--dark); transform: scale(1.1); }
-    .role-featured-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--mid); cursor: pointer; padding: 0.45rem 0; user-select: none; }
-    .role-featured-check input { accent-color: var(--yellow-dark); width: 15px; height: 15px; cursor: pointer; }
-
-    /* Scheduler sub-nav */
-    .sched-subnav { display: flex; gap: 0.35rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
-    .sched-subnav-btn { padding: 0.38rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; font-family: inherit; cursor: pointer; border: 1.5px solid var(--border); background: transparent; color: var(--mid); transition: all 0.15s; }
-    .sched-subnav-btn.active { background: var(--yellow); color: var(--dark); border-color: var(--yellow-dark); }
-    .sched-subnav-btn:hover:not(.active) { border-color: var(--mid); color: var(--dark); }
-    /* Year nav */
-    .year-nav { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
-    .year-nav-btn { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--white); color: var(--dark); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: all 0.15s; }
-    .year-nav-btn:hover { background: var(--yellow); border-color: var(--yellow-dark); }
-    .year-label { font-size: 0.82rem; font-weight: 700; color: var(--dark); min-width: 38px; text-align: center; letter-spacing: -0.01em; }
-    /* Import/Export */
-    .backup-section { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-    .backup-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .backup-title { font-size: 0.68rem; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.65rem; }
-    .backup-desc { font-size: 0.8rem; color: var(--mid); margin-bottom: 0.85rem; line-height: 1.6; }
-    .import-result { font-size: 0.82rem; padding: 0.55rem 0.85rem; border-radius: 10px; margin-top: 0.75rem; }
-    .import-result.success { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
-    .import-result.warn    { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
-    .import-file-label { display: inline-block; padding: 0.5rem 1rem; background: var(--page-bg); border: 1.5px dashed var(--border); border-radius: 10px; font-size: 0.82rem; color: var(--mid); cursor: pointer; transition: all 0.15s; font-family: inherit; }
-    .import-file-label:hover { border-color: var(--yellow-dark); color: var(--dark); }
-    .import-file-input { display: none; }
-
-    /* ── Scheduler edit modal ─────────────────────────────────────────────── */
-    .sched-edit-modal {
-      background: var(--white); border-radius: 18px;
-      width: 92%; max-width: 480px;
-      box-shadow: var(--shadow-lg);
+    .sched-tab:hover { background: var(--surface); border-color: var(--border); }
+    .sched-tab.active {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--text-1);
+      box-shadow: var(--shadow-xs);
+    }
+    .year-nav { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .year-btn {
+      width: 28px; height: 28px;
+      background: var(--surface);
       border: 1px solid var(--border);
-      animation: slideUp 0.2s cubic-bezier(0.34,1.3,0.64,1);
+      border-radius: var(--r-sm);
+      color: var(--text-2);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .year-btn:hover { background: var(--surface-2); }
+    .year-lbl { font-size: 13px; font-weight: 700; color: var(--text-1); min-width: 38px; text-align: center; }
+
+    .sched-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .sched-nav-btn {
+      width: 30px; height: 30px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-2);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .sched-nav-btn:hover { background: var(--surface-2); }
+    .sched-nav-title { font-size: 16px; font-weight: 700; color: var(--text-1); letter-spacing: -0.02em; }
+    .sched-today {
+      padding: 5px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .sched-today:hover { border-color: var(--yellow); color: var(--text-1); }
+
+    .sched-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      margin-bottom: 14px;
       overflow: hidden;
     }
-    .sched-edit-header {
-      background: var(--yellow);
-      padding: 1rem 1.25rem;
-      display: flex; align-items: center; justify-content: space-between;
+    .sched-section-hd {
+      padding: 11px 16px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
     }
-    .sched-edit-title { font-size: 0.9rem; font-weight: 700; color: #1C1C1E; letter-spacing: -0.02em; }
-    .sched-edit-sub { font-size: 0.72rem; color: rgba(28,28,30,0.6); margin-top: 0.15rem; }
-    .sched-edit-close {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: rgba(28,28,30,0.12); border: none; cursor: pointer;
-      font-size: 0.9rem; color: #1C1C1E; display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: background 0.15s;
+    .sched-table-wrap { overflow-x: auto; }
+    .sched-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .sched-table th {
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      background: var(--surface-2);
     }
-    .sched-edit-close:hover { background: rgba(28,28,30,0.22); }
-    .sched-edit-body { padding: 1.1rem 1.25rem 1.25rem; }
-    .sched-edit-section { font-size: 0.65rem; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; margin-top: 0.85rem; }
-    .sched-edit-section:first-child { margin-top: 0; }
-    .sched-edit-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; min-height: 28px; }
-    .sched-edit-pill {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      padding: 0.25rem 0.6rem; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 600;
+    .sched-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--border-2);
+      vertical-align: middle;
     }
-    .sched-edit-pill-remove {
-      background: none; border: none; cursor: pointer;
-      font-size: 0.7rem; line-height: 1; opacity: 0.6; padding: 0;
-      color: inherit; transition: opacity 0.12s;
+    .sched-table tr:last-child td { border-bottom: none; }
+    .sched-table tr.today td { background: rgba(251,206,7,0.05); }
+    .sched-table tr.weekend td { background: var(--surface-2); }
+    .sched-type-col { width: 180px; min-width: 140px; }
+    .sched-count { text-align: center; font-weight: 700; }
+    .wk-col, .dt-col, .dy-col { width: 34px; min-width: 28px; }
+    .wk-cell { font-size: 10px; color: var(--text-3); font-weight: 600; }
+    .dt-cell { font-size: 12.5px; font-weight: 700; }
+    .dy-cell { font-size: 11px; color: var(--text-3); font-weight: 600; }
+
+    .sched-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 700;
+      white-space: nowrap;
     }
-    .sched-edit-pill-remove:hover { opacity: 1; }
-    .sched-edit-empty { font-size: 0.8rem; color: var(--mid); }
-    .sched-add-row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
-    .sched-role-select {
-      flex: 1; padding: 0.5rem 0.75rem;
-      border: 1.5px solid var(--border); border-radius: 10px;
-      font-size: 0.85rem; color: var(--dark); background: var(--page-bg);
-      outline: none; font-family: inherit; cursor: pointer;
-      transition: border-color 0.15s;
+    .sched-pill-x {
+      background: none; border: none; color: inherit;
+      cursor: pointer; padding: 0; font-size: 9px;
+      opacity: 0.65; font-family: inherit; line-height: 1;
     }
-    .sched-role-select:focus { border-color: var(--yellow-dark); box-shadow: 0 0 0 3px rgba(251,206,7,0.2); }
+    .sched-pill-x:hover { opacity: 1; }
+    .sched-pills {
+      display: flex; flex-wrap: wrap; gap: 3px;
+      align-items: center; justify-content: center;
+    }
+    .sched-cell { cursor: pointer; min-width: 80px; }
+    .sched-cell:hover { background: var(--surface-2); }
+    .sched-cell-active { box-shadow: inset 0 0 0 2px var(--yellow); }
+    .sched-cell-inner { padding: 3px 0; }
+    .sched-inline-add { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+    .sched-inline-select {
+      font-size: 11px; padding: 3px 5px;
+      border: 1px solid var(--border); border-radius: 5px;
+      background: var(--surface); color: var(--text-1);
+      font-family: inherit; outline: none; cursor: pointer;
+    }
+    .sched-inline-btn {
+      padding: 3px 7px; background: var(--green); color: #fff;
+      border: none; border-radius: 5px; font-size: 11px;
+      font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .sched-inline-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .sched-cell-add { font-size: 14px; color: var(--text-3); opacity: 0; transition: opacity 0.12s; }
+    .sched-cell:hover .sched-cell-add { opacity: 1; }
+
+    .sched-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-3);
+      font-size: 13px;
+      line-height: 1.6;
+    }
     .sched-add-btn {
-      padding: 0.5rem 1rem; background: var(--yellow); color: var(--dark);
-      border: none; border-radius: 10px; font-size: 0.82rem; font-weight: 600;
-      cursor: pointer; font-family: inherit; white-space: nowrap;
+      padding: 6px 14px;
+      background: var(--yellow); color: #111;
+      border: none; border-radius: var(--r-sm);
+      font-size: 12.5px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
       transition: background 0.15s;
     }
-    .sched-add-btn:hover:not(:disabled) { background: var(--yellow-dark); }
+    .sched-add-btn:hover:not(:disabled) { background: var(--yellow-dk); }
     .sched-add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Make scheduler cells clickable */
-    .sched-cell { cursor: pointer; transition: background 0.12s; vertical-align: top; }
-    .sched-cell:hover { background: rgba(251,206,7,0.12); }
-    [data-theme="dark"] .sched-cell:hover { background: rgba(251,206,7,0.08); }
-    .sched-cell-active { background: var(--card-bg) !important; outline: 2px solid var(--yellow-dark); outline-offset: -2px; cursor: default; vertical-align: top; }
-    .sched-cell-inner { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.15rem 0; }
-    .sched-pill-x { background: none; border: none; cursor: pointer; font-size: 0.6rem; color: inherit; opacity: 0.6; padding: 0 0 0 0.25rem; line-height: 1; vertical-align: middle; }
-    .sched-pill-x:hover { opacity: 1; }
-    .sched-inline-add { display: flex; gap: 0.25rem; align-items: center; margin-top: 0.1rem; }
-    .sched-inline-select { font-size: 0.7rem; border: 1px solid var(--border); border-radius: 6px; background: var(--page-bg); color: var(--dark); padding: 0.15rem 0.25rem; max-width: 110px; cursor: pointer; font-family: inherit; }
-    .sched-inline-btn { font-size: 0.68rem; padding: 0.15rem 0.4rem; border-radius: 6px; border: none; background: var(--yellow-dark); color: #000; font-weight: 700; cursor: pointer; line-height: 1.4; }
-    .sched-inline-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .sched-cell-add {
-      display: inline-block; font-size: 0.65rem; color: var(--mid);
-      opacity: 0; transition: opacity 0.12s;
+    /* ── Roles editor ────────────────────────────────────────────────────────── */
+    .roles-hint {
+      font-size: 12.5px; color: var(--text-2); line-height: 1.65;
+      padding: 12px 16px; background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
     }
-    .sched-cell:hover .sched-cell-add { opacity: 0.6; }
+    .roles-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .roles-table th {
+      padding: 9px 12px; text-align: left;
+      font-size: 10px; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border); background: var(--surface-2);
+    }
+    .roles-table td {
+      padding: 9px 12px; border-bottom: 1px solid var(--border-2); vertical-align: middle;
+    }
+    .roles-table tr:last-child td { border-bottom: none; }
+    .role-feat-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 16px; opacity: 0.28; transition: opacity 0.15s; padding: 0 4px;
+    }
+    .role-feat-btn:hover, .role-feat-btn.active { opacity: 1; }
+    .role-del-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-3); font-size: 12px;
+      padding: 2px 5px; border-radius: 4px; transition: all 0.15s;
+    }
+    .role-del-btn:hover { background: var(--red-bg); color: var(--red); }
+    .role-rename-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 12px; margin-left: 4px; opacity: 0.28;
+      transition: opacity 0.15s; padding: 0;
+    }
+    .role-rename-btn:hover { opacity: 1; }
+    .roles-add-section {
+      padding: 16px; border-top: 1px solid var(--border); background: var(--surface-2);
+    }
+    .roles-add-lbl {
+      display: block; font-size: 10px; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px;
+    }
+    .roles-add-input {
+      width: 100%; padding: 7px 10px; border: 1px solid var(--border);
+      border-radius: var(--r-sm); background: var(--surface);
+      color: var(--text-1); font-size: 13px; font-family: inherit;
+      outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .roles-add-input:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(251,206,7,0.12); }
+    .color-presets { display: flex; flex-wrap: wrap; gap: 6px; }
+    .color-swatch {
+      width: 22px; height: 22px; border-radius: 5px; cursor: pointer;
+      border: 2px solid transparent; transition: transform 0.1s;
+    }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.selected { border-color: var(--text-1); }
+    .role-check {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12.5px; color: var(--text-2); cursor: pointer;
+    }
+    .role-check input { cursor: pointer; }
+
+    /* Import/Export */
+    .backup-title { font-size: 14px; font-weight: 700; color: var(--text-1); margin-bottom: 5px; }
+    .backup-desc  { font-size: 12.5px; color: var(--text-2); line-height: 1.65; }
+    .btn { padding: 8px 16px; border-radius: var(--r-sm); border: none; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .btn-primary { background: var(--yellow); color: #111; }
+    .btn-primary:hover:not(:disabled) { background: var(--yellow-dk); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .import-file-label {
+      display: inline-block; padding: 7px 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-sm); font-size: 12.5px; color: var(--text-2);
+      cursor: pointer; transition: border-color 0.15s;
+    }
+    .import-file-label:hover { border-color: var(--yellow); }
+    .import-file-input { display: none; }
+    .import-result {
+      padding: 9px 12px; border-radius: var(--r-sm);
+      font-size: 12.5px; margin-top: 10px;
+    }
+
+    /* ── Scrollbar (Edge/Chrome) ─────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
   </style>
 </head>
 <body>
@@ -915,7 +1143,7 @@ function ShellLogo({ size = 28 }) {
 
 function Toast({ message, type, onDone }) {
   useEffect(() => { const t = setTimeout(onDone, 3500); return () => clearTimeout(t); }, []);
-  return <div className={`toast ${type}`}>{message}</div>;
+  return <div className={'toast ' + type}>{message}</div>;
 }
 
 // ── Register form ─────────────────────────────────────────────────────────────
@@ -949,12 +1177,11 @@ function RegisterForm({ onAdded, region }) {
           <label>Last Name</label>
           <input type="text" placeholder="Smith" value={form.last_name} onChange={set('last_name')} />
         </div>
-
+        <button type="submit" className="btn-add" disabled={busy}>
+          {busy ? 'Adding…' : '+ Add'}
+        </button>
       </div>
       {error && <p className="form-error">{error}</p>}
-      <button type="submit" className="btn-register" disabled={busy}>
-        {busy ? 'Adding…' : '+ Add Member'}
-      </button>
     </form>
   );
 }
@@ -965,14 +1192,14 @@ function CheckoutPanel({ onConfirm, onCancel }) {
   const [mins, setMins] = useState('30');
   return (
     <div className="checkout-panel">
-      <span className="checkout-label">Out for:</span>
+      <span className="co-label">Out for:</span>
       <input
         type="number" className="mins-input" min="1" max="480"
         value={mins} onChange={e => setMins(e.target.value)}
       />
-      <span className="mins-label">min</span>
+      <span className="co-unit">min</span>
       <button className="btn-dur" onClick={() => onConfirm(Math.max(1, parseInt(mins) || 30))}>Check Out</button>
-      <button className="btn-dur rest" onClick={() => onConfirm(null)}>Rest of Day</button>
+      <button className="btn-dur" onClick={() => onConfirm(null)}>Rest of Day</button>
       <button className="btn-dur cancel" onClick={onCancel}>Cancel</button>
     </div>
   );
@@ -989,7 +1216,7 @@ function MemberCard({ member, onCheckin, onCheckout, onRemove, onDragStart, onDr
   const statusLabel = status === 'in'
     ? 'Available'
     : status === 'timed' && returnAt
-    ? `Returns ${returnAt}`
+    ? 'Returns ' + returnAt
     : 'Out';
 
   function handleCheckoutConfirm(mins) {
@@ -998,38 +1225,46 @@ function MemberCard({ member, onCheckin, onCheckout, onRemove, onDragStart, onDr
   }
 
   const canDrag = status === 'in';
+  const wrapCls = [
+    'member-wrap',
+    'status-' + status,
+    (member.current_cycle_assigned || balanceExcluded) ? 'assigned' : '',
+    canDrag ? 'draggable' : '',
+    isDragging ? 'is-dragging' : '',
+  ].filter(Boolean).join(' ');
+
+  const rowCls = ['member-row', canDrag ? 'draggable' : '', isDragging ? 'is-dragging' : ''].filter(Boolean).join(' ');
 
   return (
-    <div
-      className={`member-card ${status}${(member.current_cycle_assigned || balanceExcluded) ? ' assigned' : ''}${canDrag ? ' draggable' : ''}${isDragging ? ' is-dragging' : ''}`}
-      draggable={canDrag}
-      onDragStart={canDrag ? (e) => { e.dataTransfer.effectAllowed = 'move'; onDragStart(member.id); } : undefined}
-      onDragEnd={canDrag ? onDragEnd : undefined}
-    >
-      {/* Row 1: name */}
-      <div className="member-name-row">
-        <div className={`status-dot ${status}`} />
-        <span className="member-name">{member.first_name} {member.last_name}</span>
-      </div>
-      {/* Row 2: actions */}
-      <div className="member-actions-row">
-        <span className={`status-badge ${status}`}>{statusLabel}</span>
-        <span className="assign-count">{member.pick_count}×</span>
-        <span className="member-actions-spacer" />
-        {status === 'out' || status === 'timed' ? (
-          <button className="btn-sm btn-checkin" onClick={() => onCheckin(member.id)}>Check In</button>
-        ) : (
-          <button className="btn-sm btn-checkout" onClick={() => setShowCheckout(v => !v)}>Check Out</button>
-        )}
-        {confirmRemove ? (
-          <div className="confirm-remove">
-            <span>Remove?</span>
-            <button className="btn-confirm-yes" onClick={() => { onRemove(member.id); setConfirmRemove(false); }}>Yes</button>
-            <button className="btn-confirm-no"  onClick={() => setConfirmRemove(false)}>No</button>
-          </div>
-        ) : (
-          <button className="btn-sm btn-remove" onClick={() => setConfirmRemove(true)} title="Remove">✕</button>
-        )}
+    <div className={wrapCls}>
+      <div
+        className={rowCls}
+        draggable={canDrag}
+        onDragStart={canDrag ? e => { e.dataTransfer.effectAllowed = 'move'; onDragStart(member.id); } : undefined}
+        onDragEnd={canDrag ? onDragEnd : undefined}
+      >
+        <div className={'status-dot ' + status} />
+        <div className="member-info">
+          <div className="member-name">{member.first_name} {member.last_name}</div>
+          <div className="member-sub">{statusLabel}</div>
+        </div>
+        <div className="member-count">{member.pick_count}×</div>
+        <div className="member-actions">
+          {status === 'out' || status === 'timed' ? (
+            <button className="btn-sm checkin" onClick={() => onCheckin(member.id)}>Check In</button>
+          ) : (
+            <button className={'btn-sm checkout' + (showCheckout ? ' active' : '')} onClick={() => setShowCheckout(v => !v)}>Check Out</button>
+          )}
+          {confirmRemove ? (
+            <div className="confirm-inline">
+              <span className="lbl">Remove?</span>
+              <button className="btn-cy" onClick={() => { onRemove(member.id); setConfirmRemove(false); }}>Yes</button>
+              <button className="btn-cn" onClick={() => setConfirmRemove(false)}>No</button>
+            </div>
+          ) : (
+            <button className="btn-icon" onClick={() => setConfirmRemove(true)} title="Remove">✕</button>
+          )}
+        </div>
       </div>
       {showCheckout && (
         <CheckoutPanel onConfirm={handleCheckoutConfirm} onCancel={() => setShowCheckout(false)} />
@@ -1045,19 +1280,19 @@ function PickModal({ pick, onConfirm, onUnavailable }) {
   return (
     <div className="overlay">
       <div className="modal">
-        <div className="modal-header">
-          <div className="modal-header-label">Selected for Assignment</div>
+        <div className="modal-top">
+          <div className="modal-eyebrow">Selected for Assignment</div>
           <div className="modal-name">{m.first_name} {m.last_name}</div>
         </div>
         <div className="modal-body">
-          <div className="modal-stats">
-            <span>Status: <strong style={{color:'var(--green)'}}>Available</strong></span>
-            <span>Total assignments: <strong>{m.pick_count}</strong></span>
+          <div className="modal-meta">
+            <div className="modal-meta-row">Status: <strong style={{color:'var(--green)'}}>Available</strong></div>
+            <div className="modal-meta-row">Total assignments: <strong>{m.pick_count}</strong></div>
           </div>
-          <div className="modal-question">Was the work item successfully assigned?</div>
-          <div className="modal-actions">
-            <button className="btn-modal-yes" onClick={onConfirm}>✓ Yes, Assigned</button>
-            <button className="btn-modal-no"  onClick={onUnavailable}>✕ Not Available</button>
+          <div className="modal-q">Was the work item successfully assigned?</div>
+          <div className="modal-acts">
+            <button className="btn-modal-yes" onClick={onConfirm}>&#10003; Yes, Assigned</button>
+            <button className="btn-modal-no"  onClick={onUnavailable}>&#10005; Not Available</button>
           </div>
         </div>
       </div>
@@ -1070,32 +1305,30 @@ function PickModal({ pick, onConfirm, onUnavailable }) {
 function ResetCard({ onReset }) {
   const [confirming, setConfirming] = useState(false);
   return (
-    <div className="card reset-card">
-      <div className="card-title" style={{marginBottom: confirming ? '0.75rem' : 0}}>Master Reset</div>
-      {confirming ? (
-        <div>
-          <p style={{fontSize:'0.82rem',color:'var(--mid)',marginBottom:'0.75rem',lineHeight:1.6}}>
-            Resets all assignment counts, clears cycle progress, checks everyone out, and erases history. The roster is not affected.
-          </p>
-          <div style={{display:'flex',gap:'0.6rem'}}>
-            <button
-              onClick={() => { onReset(); setConfirming(false); }}
-              style={{padding:'0.55rem 1.1rem',background:'var(--red)',color:'#fff',border:'none',borderRadius:'999px',fontWeight:600,fontSize:'0.82rem',cursor:'pointer',fontFamily:'inherit'}}
-            >Reset Everything</button>
-            <button
-              onClick={() => setConfirming(false)}
-              style={{padding:'0.55rem 1rem',background:'transparent',color:'var(--mid)',border:'1.5px solid var(--border)',borderRadius:'999px',fontSize:'0.82rem',cursor:'pointer',fontFamily:'inherit'}}
-            >Cancel</button>
+    <div className="card">
+      <div className="card-head">
+        <span className="card-title">Master Reset</span>
+      </div>
+      <div className="reset-body">
+        {confirming ? (
+          <div>
+            <p className="reset-confirm-desc">
+              Resets all assignment counts, clears cycle progress, checks everyone out,
+              and erases history. The roster is not affected.
+            </p>
+            <div className="reset-actions">
+              <button className="btn-reset-do" onClick={() => { onReset(); setConfirming(false); }}>
+                Reset Everything
+              </button>
+              <button className="btn-reset-cancel" onClick={() => setConfirming(false)}>Cancel</button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <button
-          onClick={() => setConfirming(true)}
-          style={{fontSize:'0.78rem',color:'var(--mid)',background:'transparent',border:'1.5px solid var(--border)',borderRadius:'999px',padding:'0.4rem 0.9rem',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}
-          onMouseOver={e => { e.target.style.color='var(--red)'; e.target.style.borderColor='rgba(221,29,33,0.3)'; }}
-          onMouseOut={e =>  { e.target.style.color='var(--mid)'; e.target.style.borderColor='var(--border)'; }}
-        >Reset All Assignments &amp; History</button>
-      )}
+        ) : (
+          <button className="btn-reset" onClick={() => setConfirming(true)}>
+            Reset All Assignments &amp; History
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -1112,13 +1345,12 @@ function UpcomingWidget() {
         .catch(() => setData({ types: {}, entries: [] }));
     }
     load();
-    const poll = setInterval(load, 30_000);
+    const poll = setInterval(load, 30000);
     return () => clearInterval(poll);
   }, []);
 
   if (!data) return <div className="upcoming-empty">Loading…</div>;
 
-  // Monday-based week boundary
   const now = new Date();
   const dow = now.getUTCDay();
   const daysToMon = dow === 0 ? 6 : dow - 1;
@@ -1127,13 +1359,12 @@ function UpcomingWidget() {
   const nextMon = new Date(mon);
   nextMon.setUTCDate(mon.getUTCDate() + 7);
   const pad = n => String(n).padStart(2, '0');
-  const nextMonStr = `${nextMon.getUTCFullYear()}-${pad(nextMon.getUTCMonth()+1)}-${pad(nextMon.getUTCDate())}`;
+  const nextMonStr = nextMon.getUTCFullYear() + '-' + pad(nextMon.getUTCMonth()+1) + '-' + pad(nextMon.getUTCDate());
 
-  // Bucket by week → region → role → personKey → { name, dates[] }
   const REGIONS = ['US', 'NL', 'BNG'];
-  const REGION_COLORS = { US: '#1D4ED8', NL: '#059669', BNG: '#D97706' };
+  const REGION_COLORS = { US: '#3B82F6', NL: '#10B981', BNG: '#F59E0B' };
   const roleOrder = Object.keys(data.types);
-  const DAY_ABBR = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
+  const DAY_ABBR  = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
 
   function emptyBucket() {
     const b = {};
@@ -1147,7 +1378,7 @@ function UpcomingWidget() {
     const reg = e.region || 'US';
     if (!bucket[reg]) bucket[reg] = {};
     if (!bucket[reg][e.assignment]) bucket[reg][e.assignment] = {};
-    const fullName = `${e.first_name} ${e.last_name}`;
+    const fullName = e.first_name + ' ' + e.last_name;
     if (!bucket[reg][e.assignment][fullName]) {
       bucket[reg][e.assignment][fullName] = { name: fullName, dates: [] };
     }
@@ -1175,26 +1406,20 @@ function UpcomingWidget() {
       }
     }
     if (rows.length === 0) return null;
-    const color = REGION_COLORS[region] || 'var(--mid)';
+    const color = REGION_COLORS[region] || 'var(--text-3)';
     return (
-      <div style={{ marginBottom: '0.6rem' }}>
+      <div style={{ marginBottom: '8px' }}>
         <div style={{
-          fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase',
-          letterSpacing: '0.08em', color, marginBottom: '0.3rem',
-          paddingBottom: '0.2rem', borderBottom: `1.5px solid ${color}22`,
+          fontSize: '9.5px', fontWeight: 700, textTransform: 'uppercase',
+          letterSpacing: '0.1em', color, marginBottom: '4px',
+          paddingBottom: '3px', borderBottom: '1px solid ' + color + '22',
         }}>{region}</div>
         {rows.map((r, i) => (
-          <div key={i} className="upcoming-role-row">
-            <span className="upcoming-role-name" style={{ color: r.t.color || 'var(--mid)', fontWeight: 600 }}>
-              {r.role}
-            </span>
-            <span style={{ color: 'var(--mid)', margin: '0 0.3rem', fontWeight: 400 }}>—</span>
-            <span className="upcoming-role-member">{r.name}</span>
-            {r.dayStr && (
-              <span style={{ color: 'var(--mid)', fontSize: '0.78rem', marginLeft: '0.3rem' }}>
-                ({r.dayStr})
-              </span>
-            )}
+          <div key={i} className="upcoming-row">
+            <span className="upcoming-role" style={{ color: r.t.color || 'var(--text-2)' }}>{r.role}</span>
+            <span className="upcoming-sep">—</span>
+            <span className="upcoming-who">{r.name}</span>
+            {r.dayStr && <span className="upcoming-days">({r.dayStr})</span>}
           </div>
         ))}
       </div>
@@ -1204,10 +1429,10 @@ function UpcomingWidget() {
   function WeekSection({ label, bucket }) {
     const hasAny = REGIONS.some(r => Object.keys(bucket[r] || {}).length > 0);
     return (
-      <div style={{ marginBottom: '0.75rem' }}>
-        <div className="upcoming-week-label">{label}</div>
+      <div style={{ marginBottom: '10px' }}>
+        <div className="upcoming-week-lbl">{label}</div>
         {!hasAny
-          ? <div style={{fontSize:'0.78rem',color:'var(--mid)',fontStyle:'italic',padding:'0.25rem 0 0.5rem'}}>No featured coverage scheduled.</div>
+          ? <div className="upcoming-empty">No featured coverage scheduled.</div>
           : REGIONS.map(r => <RegionBlock key={r} region={r} roleBucket={bucket[r] || {}} />)
         }
       </div>
@@ -1222,16 +1447,14 @@ function UpcomingWidget() {
   );
 }
 
-// ── Scheduler View ────────────────────────────────────────────────────────────
-
-// ── Roles editor ─────────────────────────────────────────────────────────────
+// ── Roles editor ──────────────────────────────────────────────────────────────
 
 function RolesEditor({ onChanged }) {
   const [types, setTypes]     = useState(null);
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState('');
   const [newRole, setNewRole] = useState({ name: '', short: '', color: '#1D4ED8', bg: '#DBEAFE', featured: false, weekendOnly: false });
-  const [renaming, setRenaming] = useState({ name: null, value: '' }); // which row is in rename mode
+  const [renaming, setRenaming] = useState({ name: null, value: '' });
 
   const PRESETS = [
     { color: '#1D4ED8', bg: '#DBEAFE' },
@@ -1267,28 +1490,24 @@ function RolesEditor({ onChanged }) {
   async function toggleFeatured(name) {
     await persist({ ...types, [name]: { ...types[name], featured: !types[name].featured } });
   }
-
   async function toggleWeekendOnly(name) {
     await persist({ ...types, [name]: { ...types[name], weekendOnly: !types[name].weekendOnly } });
   }
-
   async function deleteRole(name) {
-    if (!window.confirm(`Delete "${name}"? Existing schedule entries using this role won't be deleted, but will lose their color.`)) return;
+    if (!window.confirm('Delete "' + name + '"? Existing schedule entries won\'t be deleted.')) return;
     const updated = { ...types };
     delete updated[name];
     await persist(updated);
   }
-
   async function commitRename() {
     const oldName = renaming.name;
     const newName = renaming.value.trim();
     if (!newName) { setRenaming({ name: null, value: '' }); return; }
     if (newName === oldName) { setRenaming({ name: null, value: '' }); return; }
-    if (types[newName]) { setError(`"${newName}" already exists.`); return; }
+    if (types[newName]) { setError('"' + newName + '" already exists.'); return; }
     setSaving(true); setError('');
     try {
-      const res = await api('PUT', '/api/schedule/rename-role', { oldName, newName });
-      // Refresh types from server to get updated object
+      await api('PUT', '/api/schedule/rename-role', { oldName, newName });
       const fresh = await api('GET', '/api/schedule/types');
       setTypes(fresh);
       onChanged();
@@ -1296,12 +1515,11 @@ function RolesEditor({ onChanged }) {
     } catch (err) { setError(err.message || 'Rename failed.'); }
     finally { setSaving(false); }
   }
-
   async function addRole() {
     const name  = newRole.name.trim();
     const short = newRole.short.trim().toUpperCase();
     if (!name || !short) { setError('Role name and short code are required.'); return; }
-    if (types[name]) { setError(`"${name}" already exists.`); return; }
+    if (types[name]) { setError('"' + name + '" already exists.'); return; }
     setError('');
     await persist({ ...types, [name]: { color: newRole.color, bg: newRole.bg, short, featured: newRole.featured, weekendOnly: newRole.weekendOnly } });
     setNewRole({ name: '', short: '', color: '#1D4ED8', bg: '#DBEAFE', featured: false, weekendOnly: false });
@@ -1312,22 +1530,21 @@ function RolesEditor({ onChanged }) {
   return (
     <div>
       <div className="roles-hint">
-        Roles marked <strong>★</strong> appear in the <strong>Upcoming Coverage</strong> widget on the homepage. A person can hold multiple roles on the same day — just assign them when editing the calendar.
+        Roles marked <strong>&#9733;</strong> appear in the <strong>Upcoming Coverage</strong> widget. A person can hold multiple roles on the same day.
       </div>
-
       <table className="roles-table">
         <thead>
           <tr>
             <th>Role</th>
             <th>Short Code</th>
-            <th style={{textAlign:'center'}}>★ Upcoming</th>
-            <th style={{textAlign:'center'}}>⛔ Weekdays</th>
+            <th style={{textAlign:'center'}}>&#9733; Upcoming</th>
+            <th style={{textAlign:'center'}}>&#9940; Weekdays</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           {Object.keys(types).length === 0 && (
-            <tr><td colSpan="4" style={{color:'var(--mid)',fontSize:'0.82rem',padding:'1rem 0.75rem',fontStyle:'italic'}}>No roles yet — add one below.</td></tr>
+            <tr><td colSpan="5" style={{color:'var(--text-3)',fontSize:'12.5px',padding:'16px 12px',fontStyle:'italic'}}>No roles yet — add one below.</td></tr>
           )}
           {Object.entries(types).map(([name, t]) => {
             const isRenaming = renaming.name === name;
@@ -1336,43 +1553,43 @@ function RolesEditor({ onChanged }) {
                 <td>
                   <span className="sched-pill" style={{background: t.bg, color: t.color}}>{t.short}</span>
                   {isRenaming ? (
-                    <span style={{display:'inline-flex',alignItems:'center',gap:'0.35rem',marginLeft:'0.5rem'}}>
+                    <span style={{display:'inline-flex',alignItems:'center',gap:'6px',marginLeft:'8px'}}>
                       <input
                         autoFocus
                         className="roles-add-input"
-                        style={{width:'160px',padding:'0.2rem 0.5rem',fontSize:'0.85rem'}}
+                        style={{width:'160px',padding:'4px 8px',fontSize:'13px'}}
                         value={renaming.value}
                         onChange={e => setRenaming(r => ({...r, value: e.target.value}))}
                         onKeyDown={e => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') setRenaming({ name: null, value: '' }); }}
                       />
-                      <button className="sched-add-btn" style={{padding:'0.2rem 0.55rem',fontSize:'0.78rem'}} onClick={commitRename} disabled={saving}>✓</button>
-                      <button className="role-del-btn" onClick={() => setRenaming({ name: null, value: '' })} title="Cancel">✕</button>
+                      <button className="sched-add-btn" style={{padding:'4px 9px',fontSize:'12px'}} onClick={commitRename} disabled={saving}>&#10003;</button>
+                      <button className="role-del-btn" onClick={() => setRenaming({ name: null, value: '' })} title="Cancel">&#10005;</button>
                     </span>
                   ) : (
-                    <span style={{marginLeft:'0.6rem'}}>{name}
-                      <button className="role-rename-btn" onClick={() => setRenaming({ name, value: name })} disabled={saving} title="Rename role">✏️</button>
+                    <span style={{marginLeft:'8px'}}>
+                      {name}
+                      <button className="role-rename-btn" onClick={() => setRenaming({ name, value: name })} disabled={saving} title="Rename">&#9998;</button>
                     </span>
                   )}
                 </td>
-                <td><code style={{fontSize:'0.78rem',color:'var(--mid)',background:'var(--page-bg)',padding:'0.1rem 0.4rem',borderRadius:'5px',border:'1px solid var(--border)'}}>{t.short}</code></td>
+                <td><code style={{fontSize:'11.5px',color:'var(--text-2)',background:'var(--surface-2)',padding:'2px 6px',borderRadius:'4px',border:'1px solid var(--border)'}}>{t.short}</code></td>
                 <td style={{textAlign:'center'}}>
-                  <button className={`role-feat-btn${t.featured ? ' active' : ''}`} onClick={() => toggleFeatured(name)} disabled={saving || isRenaming} title={t.featured ? 'Remove from homepage' : 'Show on homepage'}>
+                  <button className={'role-feat-btn' + (t.featured ? ' active' : '')} onClick={() => toggleFeatured(name)} disabled={saving || isRenaming}>
                     {t.featured ? '★' : '☆'}
                   </button>
                 </td>
                 <td style={{textAlign:'center'}}>
                   <button
-                    className={`role-feat-btn${t.weekendOnly ? ' active' : ''}`}
+                    className={'role-feat-btn' + (t.weekendOnly ? ' active' : '')}
                     onClick={() => toggleWeekendOnly(name)}
                     disabled={saving || isRenaming}
-                    title={t.weekendOnly ? 'Available weekends only — click to allow any day' : 'Allow any day — click to restrict to weekends only'}
-                    style={t.weekendOnly ? { color: '#D97706' } : {}}
+                    style={t.weekendOnly ? {color:'var(--amber)',opacity:1} : {}}
                   >
                     {t.weekendOnly ? '🏖' : '—'}
                   </button>
                 </td>
                 <td>
-                  <button className="role-del-btn" onClick={() => deleteRole(name)} disabled={saving || isRenaming} title="Delete role">✕</button>
+                  <button className="role-del-btn" onClick={() => deleteRole(name)} disabled={saving || isRenaming} title="Delete">&#10005;</button>
                 </td>
               </tr>
             );
@@ -1381,48 +1598,44 @@ function RolesEditor({ onChanged }) {
       </table>
 
       <div className="roles-add-section">
-        <div style={{fontSize:'0.68rem',fontWeight:700,color:'var(--mid)',textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:'0.85rem'}}>Add New Role</div>
-        {error && <p style={{fontSize:'0.78rem',color:'var(--red)',marginBottom:'0.65rem'}}>{error}</p>}
-
-        <div style={{display:'grid',gridTemplateColumns:'1fr 130px',gap:'0.6rem',marginBottom:'0.75rem'}}>
+        <div style={{fontSize:'10px',fontWeight:700,color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'0.09em',marginBottom:'12px'}}>Add New Role</div>
+        {error && <p style={{fontSize:'12px',color:'var(--red)',marginBottom:'10px'}}>{error}</p>}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 120px',gap:'8px',marginBottom:'10px'}}>
           <div>
-            <label className="roles-add-label">Role Name</label>
+            <label className="roles-add-lbl">Role Name</label>
             <input className="roles-add-input" placeholder="e.g. On Call" value={newRole.name}
               onChange={e => setNewRole(r => ({...r, name: e.target.value}))} />
           </div>
           <div>
-            <label className="roles-add-label">Short Code</label>
+            <label className="roles-add-lbl">Short Code</label>
             <input className="roles-add-input" placeholder="ONC" maxLength="6" value={newRole.short}
               onChange={e => setNewRole(r => ({...r, short: e.target.value.toUpperCase()}))} />
           </div>
         </div>
-
-        <div style={{marginBottom:'0.75rem'}}>
-          <label className="roles-add-label">Color</label>
+        <div style={{marginBottom:'12px'}}>
+          <label className="roles-add-lbl">Color</label>
           <div className="color-presets">
             {PRESETS.map((p, i) => (
               <div key={i}
-                className={`color-swatch${newRole.color === p.color ? ' selected' : ''}`}
-                style={{background: `linear-gradient(135deg, ${p.bg} 50%, ${p.color} 50%)`, borderColor: newRole.color === p.color ? p.color : 'transparent'}}
+                className={'color-swatch' + (newRole.color === p.color ? ' selected' : '')}
+                style={{background:'linear-gradient(135deg,' + p.bg + ' 50%,' + p.color + ' 50%)',borderColor: newRole.color === p.color ? p.color : 'transparent'}}
                 onClick={() => setNewRole(r => ({...r, color: p.color, bg: p.bg}))}
-                title={p.color}
               />
             ))}
           </div>
-          <div style={{marginTop:'0.5rem',display:'flex',alignItems:'center',gap:'0.5rem'}}>
+          <div style={{marginTop:'8px',display:'flex',alignItems:'center',gap:'8px'}}>
             <span className="sched-pill" style={{background: newRole.bg, color: newRole.color}}>{newRole.short || 'ABC'}</span>
-            <span style={{fontSize:'0.75rem',color:'var(--mid)'}}>preview</span>
+            <span style={{fontSize:'11px',color:'var(--text-3)'}}>preview</span>
           </div>
         </div>
-
-        <div style={{display:'flex',alignItems:'center',gap:'0.75rem',flexWrap:'wrap'}}>
-          <label className="role-featured-check">
+        <div style={{display:'flex',alignItems:'center',gap:'12px',flexWrap:'wrap'}}>
+          <label className="role-check">
             <input type="checkbox" checked={newRole.featured} onChange={e => setNewRole(r => ({...r, featured: e.target.checked}))} />
-            Show in Upcoming Coverage (★)
+            Show in Upcoming (&#9733;)
           </label>
-          <label className="role-featured-check">
+          <label className="role-check">
             <input type="checkbox" checked={newRole.weekendOnly} onChange={e => setNewRole(r => ({...r, weekendOnly: e.target.checked}))} />
-            Weekends only (🏖)
+            Weekends only
           </label>
           <button className="sched-add-btn" onClick={addRole} disabled={saving || !newRole.name.trim() || !newRole.short.trim()}>
             {saving ? 'Saving…' : '+ Add Role'}
@@ -1433,7 +1646,7 @@ function RolesEditor({ onChanged }) {
   );
 }
 
-// ── Import / Export backup ────────────────────────────────────────────────────
+// ── Import / Export ───────────────────────────────────────────────────────────
 
 function ImportExport({ selectedYear }) {
   const [exporting, setExporting]   = useState(false);
@@ -1446,100 +1659,70 @@ function ImportExport({ selectedYear }) {
   async function doExport() {
     setExporting(true);
     try {
-      const res = await fetch(`/api/schedule/export?year=${selectedYear}`);
+      const res  = await fetch('/api/schedule/export?year=' + selectedYear);
       if (!res.ok) throw new Error(await res.text());
       const blob = await res.blob();
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
-      a.href     = url;
-      a.download = `assigner-schedule-${selectedYear}.json`;
-      a.click();
+      a.href = url; a.download = 'assigner-schedule-' + selectedYear + '.json'; a.click();
       URL.revokeObjectURL(url);
-    } catch (e) {
-      alert('Export failed: ' + e.message);
-    }
+    } catch (e) { alert('Export failed: ' + e.message); }
     setExporting(false);
   }
 
   async function doImport() {
     const file = fileRef.current && fileRef.current.files[0];
     if (!file) { alert('Please choose a JSON file first.'); return; }
-    setImporting(true);
-    setImportResult(null);
+    setImporting(true); setImportResult(null);
     try {
       const text = await file.text();
       const json = JSON.parse(text);
       const res  = await fetch('/api/schedule/import', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ entries: json.entries || json, clearFirst }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entries: json.entries || json, clearFirst }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || res.statusText);
       setImportResult({ ok: true, inserted: data.imported, skipped: data.skipped });
       setFileLabel('Choose JSON file…');
       if (fileRef.current) fileRef.current.value = '';
-    } catch (e) {
-      setImportResult({ ok: false, message: e.message });
-    }
+    } catch (e) { setImportResult({ ok: false, message: e.message }); }
     setImporting(false);
   }
 
   return (
-    <div style={{ padding: '1.5rem' }}>
-      {/* Export */}
-      <div className="backup-section">
-        <div className="backup-title">📤 Export Schedule</div>
-        <div className="backup-desc">
-          Download all schedule entries for <strong>{selectedYear}</strong> as a JSON file.
-          Use this to keep an offline backup or to copy entries to another year.
-        </div>
-        <button className="btn btn-primary" onClick={doExport} disabled={exporting}
-          style={{ marginTop: '0.75rem' }}>
-          {exporting ? 'Exporting…' : `Export ${selectedYear} Schedule`}
+    <div style={{ padding: '20px' }}>
+      <div style={{marginBottom:'24px'}}>
+        <div className="backup-title">Export Schedule</div>
+        <div className="backup-desc">Download all schedule entries for <strong>{selectedYear}</strong> as a JSON file.</div>
+        <button className="btn btn-primary" onClick={doExport} disabled={exporting} style={{marginTop:'10px'}}>
+          {exporting ? 'Exporting…' : 'Export ' + selectedYear + ' Schedule'}
         </button>
       </div>
-
-      {/* Import */}
-      <div className="backup-section" style={{ marginTop: '1.5rem' }}>
-        <div className="backup-title">📥 Import Schedule</div>
-        <div className="backup-desc">
-          Upload a previously exported JSON file to restore or merge schedule entries.
-          Members are matched by first name, last name, and region.
-        </div>
-
-        <label className="import-file-label" style={{ display: 'inline-block', marginTop: '0.75rem' }}>
-          📎 {fileLabel}
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".json,application/json"
-            className="import-file-input"
-            onChange={e => setFileLabel(e.target.files[0] ? e.target.files[0].name : 'Choose JSON file…')}
-          />
+      <div>
+        <div className="backup-title">Import Schedule</div>
+        <div className="backup-desc">Upload a previously exported JSON file to restore or merge entries. Members are matched by name and region.</div>
+        <label className="import-file-label" style={{marginTop:'10px'}}>
+          &#128206; {fileLabel}
+          <input ref={fileRef} type="file" accept=".json,application/json" className="import-file-input"
+            onChange={e => setFileLabel(e.target.files[0] ? e.target.files[0].name : 'Choose JSON file…')} />
         </label>
-
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem',
-          fontSize: '0.85rem', cursor: 'pointer' }}>
-          <input type="checkbox" checked={clearFirst}
-            onChange={e => setClearFirst(e.target.checked)} />
-          Clear existing entries for the imported year before loading
+        <label style={{display:'flex',alignItems:'center',gap:'7px',marginTop:'10px',fontSize:'13px',cursor:'pointer',color:'var(--text-2)'}}>
+          <input type="checkbox" checked={clearFirst} onChange={e => setClearFirst(e.target.checked)} />
+          Clear existing entries before loading
         </label>
-
-        <button className="btn btn-primary" onClick={doImport} disabled={importing}
-          style={{ marginTop: '0.75rem' }}>
+        <button className="btn btn-primary" onClick={doImport} disabled={importing} style={{marginTop:'10px'}}>
           {importing ? 'Importing…' : 'Import Schedule'}
         </button>
-
         {importResult && (
-          <div className={`import-result ${importResult.ok ? 'import-ok' : 'import-err'}`}
-            style={{ marginTop: '0.75rem', padding: '0.6rem 0.9rem', borderRadius: '6px',
-              background: importResult.ok ? 'var(--green-bg,#d1fae5)' : 'var(--red-bg,#fee2e2)',
-              color: importResult.ok ? 'var(--green,#059669)' : 'var(--red,#dc2626)',
-              fontSize: '0.85rem' }}>
+          <div className="import-result" style={{
+            background: importResult.ok ? 'var(--green-bg)' : 'var(--red-bg)',
+            border: '1px solid ' + (importResult.ok ? 'var(--green-bd)' : 'var(--red-bd)'),
+            color: importResult.ok ? 'var(--green)' : 'var(--red)',
+          }}>
             {importResult.ok
-              ? `✅ Import complete — ${importResult.inserted} entries added, ${importResult.skipped} skipped.`
-              : `❌ Import failed: ${importResult.message}`}
+              ? '✓ Import complete — ' + importResult.inserted + ' entries added, ' + importResult.skipped + ' skipped.'
+              : '✗ Import failed: ' + importResult.message}
           </div>
         )}
       </div>
@@ -1550,30 +1733,21 @@ function ImportExport({ selectedYear }) {
 // ── Inline cell editor ────────────────────────────────────────────────────────
 
 function InlineCell({ dateStr, member, region, types, isWeekend, initialEntries, active, onActivate, onChanged }) {
-  const [localEntries, setLocalEntries] = useState(null); // null = not editing
+  const [localEntries, setLocalEntries] = useState(null);
   const [selected, setSelected]         = useState('');
   const [saving, setSaving]             = useState(false);
   const ref = React.useRef();
 
-  const entries = active ? (localEntries ?? initialEntries) : initialEntries;
+  const entries = active ? (localEntries !== null ? localEntries : initialEntries) : initialEntries;
 
-  // Snapshot entries on activate; clear on deactivate
   useEffect(() => {
-    if (active) {
-      setLocalEntries(initialEntries);
-      setSelected('');
-    } else {
-      setLocalEntries(null);
-      setSelected('');
-    }
+    if (active) { setLocalEntries(initialEntries); setSelected(''); }
+    else { setLocalEntries(null); setSelected(''); }
   }, [active]);
 
-  // Close on click outside
   useEffect(() => {
     if (!active) return;
-    function handler(e) {
-      if (ref.current && !ref.current.contains(e.target)) onActivate(null);
-    }
+    function handler(e) { if (ref.current && !ref.current.contains(e.target)) onActivate(null); }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [active]);
@@ -1591,7 +1765,7 @@ function InlineCell({ dateStr, member, region, types, isWeekend, initialEntries,
       const result = await api('POST', '/api/schedule/entry', {
         date: dateStr, member_id: member.id, assignment: selected, region
       });
-      setLocalEntries(prev => [...(prev ?? initialEntries), { id: result.id, assignment: selected }]);
+      setLocalEntries(prev => [...(prev !== null ? prev : initialEntries), { id: result.id, assignment: selected }]);
       setSelected('');
       onChanged();
     } catch {}
@@ -1599,29 +1773,26 @@ function InlineCell({ dateStr, member, region, types, isWeekend, initialEntries,
   }
 
   async function handleRemove(id) {
-    setLocalEntries(prev => (prev ?? initialEntries).filter(e => e.id !== id));
+    setLocalEntries(prev => (prev !== null ? prev : initialEntries).filter(e => e.id !== id));
     try {
-      await api('DELETE', `/api/schedule/entry/${id}`);
+      await api('DELETE', '/api/schedule/entry/' + id);
       onChanged();
-    } catch {
-      setLocalEntries(initialEntries);
-    }
+    } catch { setLocalEntries(initialEntries); }
   }
 
   if (active) {
     return (
-      <td ref={ref} className="sched-cell-active">
+      <td ref={ref} className="sched-cell sched-cell-active">
         <div className="sched-cell-inner">
-          <div className="sched-pills" style={{ justifyContent: 'flex-start' }}>
+          <div className="sched-pills" style={{justifyContent:'flex-start'}}>
             {entries.length === 0
-              ? <span style={{ fontSize: '0.7rem', color: 'var(--mid)', fontStyle: 'italic' }}>none</span>
+              ? <span style={{fontSize:'11px',color:'var(--text-3)',fontStyle:'italic'}}>none</span>
               : entries.map(e => {
                   const t = types[e.assignment] || {};
                   return (
-                    <span key={e.id} className="sched-pill"
-                      style={{ background: t.bg || '#eee', color: t.color || '#333' }}>
+                    <span key={e.id} className="sched-pill" style={{background: t.bg || '#eee', color: t.color || '#333'}}>
                       {t.short || e.assignment}
-                      <button className="sched-pill-x" onClick={() => handleRemove(e.id)} title="Remove">✕</button>
+                      <button className="sched-pill-x" onClick={() => handleRemove(e.id)} title="Remove">&#10005;</button>
                     </span>
                   );
                 })}
@@ -1650,13 +1821,12 @@ function InlineCell({ dateStr, member, region, types, isWeekend, initialEntries,
   }
 
   return (
-    <td ref={ref} className="sched-cell" onClick={() => onActivate(`${dateStr}|${member.id}`)}>
+    <td ref={ref} className="sched-cell" onClick={() => onActivate(dateStr + '|' + member.id)}>
       <div className="sched-pills">
         {entries.map(e => {
           const t = types[e.assignment] || {};
           return (
-            <span key={e.id} className="sched-pill"
-              style={{ background: t.bg || '#eee', color: t.color || '#333' }}>
+            <span key={e.id} className="sched-pill" style={{background: t.bg || '#eee', color: t.color || '#333'}}>
               {t.short || e.assignment}
             </span>
           );
@@ -1674,176 +1844,125 @@ function SchedulerView({ region }) {
   const [schedView, setSchedView]   = useState('calendar');
   const [data, setData]             = useState(null);
   const [loading, setLoading]       = useState(true);
-  const [refreshing, setRefreshing] = useState(false); // background refresh — does NOT unmount the view
+  const [refreshing, setRefreshing] = useState(false);
   const [fetchError, setFetchError] = useState(null);
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [monthIdx, setMonthIdx]     = useState(now.getMonth());
-  const [activeCell, setActiveCell] = useState(null); // "date|memberId" or null
+  const [activeCell, setActiveCell] = useState(null);
 
-  function loadData(background = false) {
-    if (background) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
-      setFetchError(null);
-    }
-    api('GET', `/api/schedule?region=${region}&year=${selectedYear}`)
+  function loadData(background) {
+    if (background) { setRefreshing(true); }
+    else { setLoading(true); setFetchError(null); }
+    api('GET', '/api/schedule?region=' + region + '&year=' + selectedYear)
       .then(d => { setData(d); setLoading(false); setRefreshing(false); })
       .catch(err => {
         setFetchError(err.message || 'Failed to load schedule.');
-        setData(null);
-        setLoading(false);
-        setRefreshing(false);
+        setData(null); setLoading(false); setRefreshing(false);
       });
   }
 
   useEffect(() => { loadData(false); }, [region, selectedYear]);
 
-  const MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const DAYS_SHORT  = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS   = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
   function isoWeek(date) {
     const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
     const y = d.getUTCFullYear();
-    const w = Math.ceil((((d - Date.UTC(y,0,1)) / 86400000) + 1) / 7);
-    return w;
+    return Math.ceil((((d - Date.UTC(y,0,1)) / 86400000) + 1) / 7);
   }
 
-  function pad2(n) { return String(n).padStart(2, '0'); }
-  function fmtDate(y, m, d) { return `${y}-${pad2(m+1)}-${pad2(d)}`; }
+  function p2(n) { return String(n).padStart(2, '0'); }
+  function fmtDate(y, m, d) { return y + '-' + p2(m+1) + '-' + p2(d); }
 
   const subNav = (
     <div className="sched-subnav">
-      <button className={`sched-subnav-btn${schedView === 'calendar' ? ' active' : ''}`} onClick={() => setSchedView('calendar')}>📅 Calendar</button>
-      <button className={`sched-subnav-btn${schedView === 'roles'    ? ' active' : ''}`} onClick={() => setSchedView('roles')}>⚙ Manage Roles</button>
-      <button className={`sched-subnav-btn${schedView === 'backup'   ? ' active' : ''}`} onClick={() => setSchedView('backup')}>📦 Backup</button>
+      <button className={'sched-tab' + (schedView === 'calendar' ? ' active' : '')} onClick={() => setSchedView('calendar')}>&#128197; Calendar</button>
+      <button className={'sched-tab' + (schedView === 'roles'    ? ' active' : '')} onClick={() => setSchedView('roles')}>&#9881; Manage Roles</button>
+      <button className={'sched-tab' + (schedView === 'backup'   ? ' active' : '')} onClick={() => setSchedView('backup')}>&#128230; Backup</button>
       <div className="year-nav">
-        <button className="year-nav-btn" onClick={() => { setSelectedYear(y => y - 1); }} title="Previous year">‹</button>
-        <span className="year-label">{selectedYear}</span>
-        <button className="year-nav-btn" onClick={() => { setSelectedYear(y => y + 1); }} title="Next year">›</button>
+        <button className="year-btn" onClick={() => setSelectedYear(y => y - 1)}>&#8249;</button>
+        <span className="year-lbl">{selectedYear}</span>
+        <button className="year-btn" onClick={() => setSelectedYear(y => y + 1)}>&#8250;</button>
       </div>
     </div>
   );
 
-  if (schedView === 'roles') {
-    return (
-      <div className="scheduler-wrap">
-        {subNav}
-        <RolesEditor onChanged={() => loadData(true)} />
+  if (schedView === 'roles') return <div>{subNav}<div className="sched-section"><RolesEditor onChanged={() => loadData(true)} /></div></div>;
+  if (schedView === 'backup') return <div>{subNav}<div className="sched-section"><ImportExport selectedYear={selectedYear} /></div></div>;
+  if (loading) return <div>{subNav}<div className="sched-empty">Loading…</div></div>;
+  if (fetchError) return (
+    <div>{subNav}
+      <div className="sched-empty" style={{color:'var(--red)'}}>
+        &#9888; Could not load schedule: <strong>{fetchError}</strong>
       </div>
-    );
-  }
+    </div>
+  );
 
-  if (schedView === 'backup') {
-    return (
-      <div className="scheduler-wrap">
-        {subNav}
-        <ImportExport selectedYear={selectedYear} />
-      </div>
-    );
-  }
+  const types   = (data && data.types)   || {};
+  const entries = (data && data.entries) || [];
+  const members = (data && data.members) || [];
 
-  if (loading) {
-    return (
-      <div className="scheduler-wrap">
-        {subNav}
-        <div className="sched-empty">Loading…</div>
-      </div>
-    );
-  }
-
-  if (fetchError) {
-    return (
-      <div className="scheduler-wrap">
-        {subNav}
-        <div className="sched-empty" style={{color:'var(--red)'}}>
-          ⚠ Could not load schedule: <strong>{fetchError}</strong><br />
-          <span style={{fontSize:'0.78rem',color:'var(--mid)',fontWeight:400}}>
-            Try restarting the server (<code>pm2 restart assigner</code>) then refresh.
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  const types   = data?.types   || {};
-  const entries = data?.entries || [];
-  const members = data?.members || [];
-
-  // Build lookup: "date|member_id" → [{id, assignment}, ...]
   const lookup = {};
   for (const e of entries) {
-    const k = `${e.date}|${e.member_id}`;
+    const k = e.date + '|' + e.member_id;
     if (!lookup[k]) lookup[k] = [];
     lookup[k].push({ id: e.id, assignment: e.assignment });
   }
 
-  // Build summary count per type per member
-  const summary = {}; // summary[assignment][member_id] = count
+  const summary = {};
   for (const e of entries) {
     if (!summary[e.assignment]) summary[e.assignment] = {};
     summary[e.assignment][e.member_id] = (summary[e.assignment][e.member_id] || 0) + 1;
   }
 
-  // Days in month grid
   const daysInMonth = new Date(Date.UTC(selectedYear, monthIdx + 1, 0)).getUTCDate();
   const todayStr = fmtDate(now.getFullYear(), now.getMonth(), now.getDate());
 
-
-
-  if (members.length === 0) {
-    return (
-      <div className="scheduler-wrap">
-        {subNav}
-        <div className="sched-empty">
-          No team members in the <strong>{region}</strong> region yet.<br />
-          Add members in the Assigner tab to populate the schedule.
-        </div>
-      </div>
-    );
-  }
+  if (members.length === 0) return (
+    <div>{subNav}
+      <div className="sched-empty">No team members in <strong>{region}</strong> yet.</div>
+    </div>
+  );
 
   return (
-    <div className="scheduler-wrap">
+    <div>
       {subNav}
-      {/* Month navigation */}
+
       <div className="sched-nav">
-        <button className="sched-nav-btn" onClick={() => setMonthIdx(m => (m + 11) % 12)}>‹</button>
-        <span className="sched-nav-title">{MONTHS_LONG[monthIdx]}</span>
-        <button className="sched-nav-btn" onClick={() => setMonthIdx(m => (m + 1) % 12)}>›</button>
+        <button className="sched-nav-btn" onClick={() => setMonthIdx(m => (m + 11) % 12)}>&#8249;</button>
+        <span className="sched-nav-title">{MONTHS[monthIdx]}</span>
+        <button className="sched-nav-btn" onClick={() => setMonthIdx(m => (m + 1) % 12)}>&#8250;</button>
         {(monthIdx !== now.getMonth() || selectedYear !== now.getFullYear()) && (
-          <button className="sched-today-btn" onClick={() => { setMonthIdx(now.getMonth()); setSelectedYear(now.getFullYear()); }}>Today</button>
+          <button className="sched-today" onClick={() => { setMonthIdx(now.getMonth()); setSelectedYear(now.getFullYear()); }}>Today</button>
         )}
       </div>
 
-      {/* Summary table */}
       <div className="sched-section">
-        <div className="sched-section-title">Year-to-Date Summary</div>
+        <div className="sched-section-hd">Year-to-Date Summary</div>
         <div className="sched-table-wrap">
           <table className="sched-table">
             <thead>
               <tr>
                 <th className="sched-type-col">Role</th>
                 {members.map(m => (
-                  <th key={m.id}>{m.first_name}<br /><span style={{fontWeight:400,opacity:0.7}}>{m.last_name}</span></th>
+                  <th key={m.id}>{m.first_name}<br /><span style={{fontWeight:400,opacity:0.6}}>{m.last_name}</span></th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {Object.entries(types).map(([name, t]) => (
                 <tr key={name}>
-                  <td className="sched-type-cell">
-                    <span className="sched-pill" style={{ background: t.bg, color: t.color }}>
-                      {t.short}
-                    </span>
-                    <span style={{marginLeft:'0.5rem', fontSize:'0.78rem'}}>{name}</span>
-                    {t.featured && <span style={{marginLeft:'0.3rem', color:'var(--yellow-dark)', fontWeight:700}} title="Shows on homepage">★</span>}
+                  <td>
+                    <span className="sched-pill" style={{background: t.bg, color: t.color}}>{t.short}</span>
+                    <span style={{marginLeft:'8px',fontSize:'12.5px'}}>{name}</span>
+                    {t.featured && <span style={{marginLeft:'4px',color:'var(--yellow-dk)',fontWeight:700,fontSize:'12px'}}>&#9733;</span>}
                   </td>
                   {members.map(m => {
-                    const cnt = (summary[name] || {})[m.id] || 0;
+                    const cnt = ((summary[name] || {})[m.id]) || 0;
                     return (
-                      <td key={m.id} className="sched-count" style={cnt === 0 ? {opacity:0.3} : {}}>
+                      <td key={m.id} className="sched-count" style={cnt === 0 ? {opacity:0.25} : {}}>
                         {cnt === 0 ? '—' : cnt}
                       </td>
                     );
@@ -1855,42 +1974,40 @@ function SchedulerView({ region }) {
         </div>
       </div>
 
-      {/* Monthly grid */}
       <div className="sched-section">
-        <div className="sched-section-title">
-          {MONTHS_LONG[monthIdx]} {selectedYear}
-          <span style={{fontSize:'0.7rem',color:'var(--mid)',marginLeft:'0.6rem',fontWeight:400}}>Click any cell to edit</span>
+        <div className="sched-section-hd">
+          {MONTHS[monthIdx]} {selectedYear}
+          <span style={{fontSize:'10px',color:'var(--text-3)',marginLeft:'8px',fontWeight:400}}>Click any cell to edit</span>
         </div>
         <div className="sched-table-wrap">
           <table className="sched-table sched-grid-table">
             <thead>
               <tr>
                 <th className="wk-col">Wk</th>
-                <th className="dt-col">Date</th>
-                <th className="dy-col">Day</th>
+                <th className="dt-col">Day</th>
+                <th className="dy-col"></th>
                 {members.map(m => (
-                  <th key={m.id}>{m.first_name}<br /><span style={{fontWeight:400,opacity:0.7}}>{m.last_name}</span></th>
+                  <th key={m.id}>{m.first_name}<br /><span style={{fontWeight:400,opacity:0.6}}>{m.last_name}</span></th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: daysInMonth }, (_, i) => {
+              {Array.from({ length: daysInMonth }, function(_, i) {
                 const day = i + 1;
                 const dt  = new Date(Date.UTC(selectedYear, monthIdx, day));
-                const dow = dt.getUTCDay(); // 0=Sun 6=Sat
-                const dateStr = fmtDate(selectedYear, monthIdx, day);
+                const dow = dt.getUTCDay();
+                const dateStr   = fmtDate(selectedYear, monthIdx, day);
                 const isWeekend = dow === 0 || dow === 6;
                 const isToday   = dateStr === todayStr;
-                const showWk    = dow === 1; // Monday
+                const showWk    = dow === 1;
                 const wk        = showWk ? isoWeek(dt) : '';
-
                 return (
                   <tr key={day} className={isToday ? 'today' : isWeekend ? 'weekend' : ''}>
                     <td className="wk-cell">{wk}</td>
-                    <td className="dt-cell">{pad2(day)}</td>
-                    <td className="dy-cell">{DAYS_SHORT[dow]}</td>
+                    <td className="dt-cell">{p2(day)}</td>
+                    <td className="dy-cell">{DAYS[dow]}</td>
                     {members.map(m => {
-                      const k = `${dateStr}|${m.id}`;
+                      const k = dateStr + '|' + m.id;
                       return (
                         <InlineCell
                           key={m.id}
@@ -1913,7 +2030,6 @@ function SchedulerView({ region }) {
           </table>
         </div>
       </div>
-
     </div>
   );
 }
@@ -1926,11 +2042,11 @@ function App() {
   const [pendingPick, setPendingPick] = useState(null);
   const [picking, setPicking]         = useState(false);
   const [toast, setToast]             = useState(null);
-  const [darkMode, setDarkMode]       = useState(() => localStorage.getItem('theme') === 'dark');
+  const [darkMode, setDarkMode]       = useState(function() { return localStorage.getItem('theme') === 'dark'; });
   const [draggingId, setDraggingId]   = useState(null);
   const [dropOver, setDropOver]       = useState(false);
   const [balanceMode, setBalanceMode] = useState(false);
-  const [region, setRegion]           = useState(() => localStorage.getItem('region') || 'US');
+  const [region, setRegion]           = useState(function() { return localStorage.getItem('region') || 'US'; });
   const [view, setView]               = useState('assigner');
   const dragCounter                   = React.useRef(0);
 
@@ -1939,11 +2055,9 @@ function App() {
     localStorage.setItem('theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
-  useEffect(() => {
-    localStorage.setItem('region', region);
-  }, [region]);
+  useEffect(() => { localStorage.setItem('region', region); }, [region]);
 
-  const showToast = (msg, type = 'info') => setToast({ message: msg, type });
+  const showToast = (msg, type) => setToast({ message: msg, type: type || 'info' });
 
   const sortMembers = list =>
     [...list].sort((a, b) =>
@@ -1952,39 +2066,39 @@ function App() {
       a.first_name.localeCompare(b.first_name)
     );
 
-  const loadMembers = useCallback(async () => {
-    const data = await api('GET', `/api/members?region=${region}`).catch(() => []);
+  const loadMembers = useCallback(async function() {
+    const data = await api('GET', '/api/members?region=' + region).catch(function() { return []; });
     setMembers(sortMembers(data));
   }, [region]);
 
-  const loadHistory = useCallback(async () => {
-    const data = await api('GET', `/api/history?region=${region}`).catch(() => []);
+  const loadHistory = useCallback(async function() {
+    const data = await api('GET', '/api/history?region=' + region).catch(function() { return []; });
     setHistory(data);
   }, [region]);
 
   useEffect(() => {
     loadMembers();
     loadHistory();
-    const poll = setInterval(loadMembers, 30_000);
+    const poll = setInterval(loadMembers, 30000);
     return () => clearInterval(poll);
   }, [loadMembers, loadHistory]);
 
   function handleAdded(member) {
     setMembers(prev => sortMembers([...prev, member]));
-    showToast(`${member.first_name} ${member.last_name} added.`, 'success');
+    showToast(member.first_name + ' ' + member.last_name + ' added.', 'success');
   }
 
   async function handleCheckin(id) {
     try {
-      const updated = await api('POST', `/api/members/${id}/checkin`);
+      const updated = await api('POST', '/api/members/' + id + '/checkin');
       setMembers(prev => sortMembers(prev.map(m => m.id === id ? updated : m)));
-      showToast('Checked in — you\'re in the pool.', 'success');
+      showToast("Checked in — you're in the pool.", 'success');
     } catch (err) { showToast(err.message, 'error'); }
   }
 
   async function handleCheckout(id, duration_minutes) {
     try {
-      const updated = await api('POST', `/api/members/${id}/checkout`, { duration_minutes });
+      const updated = await api('POST', '/api/members/' + id + '/checkout', { duration_minutes });
       setMembers(prev => sortMembers(prev.map(m => m.id === id ? updated : m)));
       showToast(duration_minutes ? 'Checked out — timer set.' : 'Checked out for the rest of the day.', 'info');
     } catch (err) { showToast(err.message, 'error'); }
@@ -1992,7 +2106,7 @@ function App() {
 
   async function handleRemove(id) {
     try {
-      await api('DELETE', `/api/members/${id}`);
+      await api('DELETE', '/api/members/' + id);
       setMembers(prev => prev.filter(m => m.id !== id));
       showToast('Removed.', 'info');
     } catch { showToast('Could not remove.', 'error'); }
@@ -2009,39 +2123,23 @@ function App() {
 
   async function handleManualPick(id) {
     try {
-      const result = await api('POST', `/api/members/${id}/pick`);
+      const result = await api('POST', '/api/members/' + id + '/pick');
       setPendingPick(result);
     } catch (err) { showToast(err.message || 'Could not assign.', 'error'); }
   }
 
   function handleDragStart(id) { setDraggingId(id); }
   function handleDragEnd()     { setDraggingId(null); setDropOver(false); dragCounter.current = 0; }
-
-  function handleDropZoneEnter(e) {
-    e.preventDefault();
-    dragCounter.current += 1;
-    if (draggingId) setDropOver(true);
-  }
-  function handleDropZoneLeave() {
-    dragCounter.current -= 1;
-    if (dragCounter.current <= 0) { setDropOver(false); dragCounter.current = 0; }
-  }
-  function handleDropZoneOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
-  function handleDrop(e) {
-    e.preventDefault();
-    setDropOver(false);
-    dragCounter.current = 0;
-    if (draggingId) { handleManualPick(draggingId); setDraggingId(null); }
-  }
+  function handleDropZoneEnter(e) { e.preventDefault(); dragCounter.current += 1; if (draggingId) setDropOver(true); }
+  function handleDropZoneLeave()  { dragCounter.current -= 1; if (dragCounter.current <= 0) { setDropOver(false); dragCounter.current = 0; } }
+  function handleDropZoneOver(e)  { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+  function handleDrop(e) { e.preventDefault(); setDropOver(false); dragCounter.current = 0; if (draggingId) { handleManualPick(draggingId); setDraggingId(null); } }
 
   async function handleConfirm() {
     try {
-      await api('POST', `/api/pick/${pendingPick.pick_id}/confirm`);
-      const name = `${pendingPick.member.first_name} ${pendingPick.member.last_name}`;
-
-      // Always re-fetch members from server — optimistic updates drift when picks
-      // happen in quick succession. Server data is always the source of truth.
-      const fresh  = await api('GET', `/api/members?region=${region}`).catch(() => null);
+      await api('POST', '/api/pick/' + pendingPick.pick_id + '/confirm');
+      const name   = pendingPick.member.first_name + ' ' + pendingPick.member.last_name;
+      const fresh  = await api('GET', '/api/members?region=' + region).catch(function() { return null; });
       const sorted = fresh ? sortMembers(fresh) : null;
 
       if (balanceMode) {
@@ -2055,18 +2153,16 @@ function App() {
             showToast('Balance reached — switching back to cycle mode.', 'success');
           } else {
             setMembers(sorted);
-            showToast(`Assigned to ${name}.`, 'success');
+            showToast('Assigned to ' + name + '.', 'success');
           }
-        } else {
-          showToast(`Assigned to ${name}.`, 'success');
-        }
+        } else { showToast('Assigned to ' + name + '.', 'success'); }
       } else {
         if (sorted) {
           const checkedIn     = sorted.filter(m => m.is_checked_in);
           const cycleComplete = checkedIn.length > 0 && checkedIn.every(m => m.current_cycle_assigned);
           setMembers(cycleComplete ? sorted.map(m => ({ ...m, current_cycle_assigned: 0 })) : sorted);
         }
-        showToast(`Assigned to ${name}.`, 'success');
+        showToast('Assigned to ' + name + '.', 'success');
       }
       setPendingPick(null);
       loadHistory();
@@ -2074,7 +2170,7 @@ function App() {
   }
 
   async function handleUnavailable() {
-    try { await api('POST', `/api/pick/${pendingPick.pick_id}/cancel`); } catch {}
+    try { await api('POST', '/api/pick/' + pendingPick.pick_id + '/cancel'); } catch {}
     setPendingPick(null);
     showToast('Cancelled — try again.', 'info');
   }
@@ -2094,197 +2190,240 @@ function App() {
   const assignedThisCycle = members.filter(m => m.current_cycle_assigned).length;
   const showCycleLegend   = total > 0 && assignedThisCycle > 0;
 
-  // Balance mode exclusion: checked-in members at the max pick_count are excluded
-  // until everyone else catches up. When all are equal, no one is excluded.
-  const checkedInMembers  = members.filter(m => m.is_checked_in);
-  const balanceMaxCount   = balanceMode && checkedInMembers.length > 0
+  const checkedInMembers = members.filter(m => m.is_checked_in);
+  const balanceMaxCount  = balanceMode && checkedInMembers.length > 0
     ? Math.max(...checkedInMembers.map(m => m.pick_count)) : -1;
-  const balanceAllEqual   = balanceMode && checkedInMembers.length > 0
+  const balanceAllEqual  = balanceMode && checkedInMembers.length > 0
     && checkedInMembers.every(m => m.pick_count === balanceMaxCount);
 
   return (
     <>
-      <header className="header">
-        <div className="header-inner">
-          <div className="header-brand">
-            <div className="brand-mark">
-              <ShellLogo size={26} />
-            </div>
-            <div>
-              <div className="brand-name">Assigner</div>
-              <div className="brand-sub">Work Assignment Tool</div>
-            </div>
-          </div>
-          <div className="nav-tabs">
-            <button className={`nav-tab${view === 'assigner' ? ' active' : ''}`} onClick={() => setView('assigner')}>⚡ Assigner</button>
-            <button className={`nav-tab${view === 'scheduler' ? ' active' : ''}`} onClick={() => setView('scheduler')}>📅 Scheduler</button>
-          </div>
-          <div className="header-right">
-            <div className="region-pills">
-              {['US','NL','BNG'].map(r => (
-                <button key={r} className={`region-pill${region === r ? ' active' : ''}`} onClick={() => setRegion(r)}>{r}</button>
-              ))}
-            </div>
-            <button className="theme-toggle" onClick={() => setDarkMode(d => !d)} title="Toggle dark mode">
-              {darkMode ? '☀' : '🌙'}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {view === 'scheduler' && <SchedulerView region={region} />}
-
-      {view === 'assigner' && <div className="container">
-        <div className="top-bar card">
-          <div className="card-title">Add a Team Member — {region}</div>
-          <RegisterForm onAdded={handleAdded} region={region} />
-        </div>
-
-        <div className="left-col">
-          <div className="card">
-            <div className="card-title">
-              Team Roster
-              <span className="card-badge">{total}</span>
-            </div>
-            {showCycleLegend && (
-              <div className="cycle-legend">
-                <span>⚡</span>
-                <span>{assignedThisCycle} of {available || total} assigned this cycle</span>
-              </div>
-            )}
-            {total === 0 ? (
-              <div className="empty">No one on the roster yet.<br />Add yourself above.</div>
-            ) : (
-              <div className="member-list">
-                {members.map(m => (
-                  <MemberCard
-                    key={m.id}
-                    member={m}
-                    onCheckin={handleCheckin}
-                    onCheckout={handleCheckout}
-                    onRemove={handleRemove}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    isDragging={draggingId === m.id}
-                    balanceExcluded={balanceMode && !balanceAllEqual && m.is_checked_in && m.pick_count >= balanceMaxCount}
-                  />
-                ))}
-              </div>
-            )}
+      {/* ── Sidebar ── */}
+      <aside className="sidebar">
+        <div className="sb-brand">
+          <div className="sb-logo"><ShellLogo size={22} /></div>
+          <div>
+            <div className="sb-title">Assigner</div>
+            <div className="sb-sub">Work Assignment Tool</div>
           </div>
         </div>
 
-        <div className="right-col">
-          <div className="card assign-card">
-            <div className="card-title">Assign Work Item</div>
-            {total > 0 && (
-              <div className="stats-row">
-                <div className="stat-chip">
-                  <span className={`val ${available > 0 ? 'green' : ''}`}>{available}</span>
-                  <span className="lbl">Available</span>
+        <nav className="sb-nav">
+          <div className="sb-section-label">Navigation</div>
+          <button className={'nav-btn' + (view === 'assigner' ? ' active' : '')} onClick={() => setView('assigner')}>
+            <span className="nav-ico">&#9889;</span> Assigner
+          </button>
+          <button className={'nav-btn' + (view === 'scheduler' ? ' active' : '')} onClick={() => setView('scheduler')}>
+            <span className="nav-ico">&#128197;</span> Scheduler
+          </button>
+        </nav>
+
+        <div className="sb-region">
+          <div className="region-label">Region</div>
+          <div className="region-btns">
+            {['US','NL','BNG'].map(r => (
+              <button key={r} className={'region-btn' + (region === r ? ' active' : '')} onClick={() => setRegion(r)}>{r}</button>
+            ))}
+          </div>
+        </div>
+
+        <div className="sb-stats">
+          <div className="sb-stat">
+            <span className="sb-stat-lbl">Available</span>
+            <span className={'sb-stat-val' + (available > 0 ? ' green' : '')}>{available}</span>
+          </div>
+          <div className="sb-stat">
+            <span className="sb-stat-lbl">Total Members</span>
+            <span className="sb-stat-val">{total}</span>
+          </div>
+          <div className="sb-stat">
+            <span className="sb-stat-lbl">All-time Assignments</span>
+            <span className="sb-stat-val">{totalAssign}</span>
+          </div>
+        </div>
+
+        <div className="sb-bottom">
+          <button className="theme-btn" onClick={() => setDarkMode(d => !d)}>
+            <span>{darkMode ? '☀' : '🌙'}</span>
+            <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main ── */}
+      <main className="main">
+        {view === 'scheduler' && <SchedulerView region={region} />}
+
+        {view === 'assigner' && (
+          <div className="assigner-grid">
+            {/* Left column */}
+            <div className="a-left">
+              <div className="card">
+                <div className="card-head">
+                  <span className="card-title">Add Team Member — {region}</span>
                 </div>
-                <div className="stat-chip">
-                  <span className="val">{total - available}</span>
-                  <span className="lbl">Out</span>
+                <div className="add-form">
+                  <RegisterForm onAdded={handleAdded} region={region} />
                 </div>
-                {!balanceMode && (
-                  <div className="stat-chip">
-                    <span className="val">{assignedThisCycle}/{available || total}</span>
-                    <span className="lbl">This Cycle</span>
-                  </div>
-                )}
               </div>
-            )}
-            <button
-              className={`btn-assign${dropOver ? ' drop-over' : ''}`}
-              onClick={handlePick}
-              disabled={picking || available === 0}
-              onDragEnter={handleDropZoneEnter}
-              onDragLeave={handleDropZoneLeave}
-              onDragOver={handleDropZoneOver}
-              onDrop={handleDrop}
-            >
-              {dropOver ? '⚡ Drop to Assign' : picking ? 'Selecting…' : '⚡ Assign Someone'}
-            </button>
-            <p className={`assign-drag-hint${draggingId ? ' visible' : ''}`}>
-              Drop here to manually assign
-            </p>
-            <p className="assign-hint" style={{display: draggingId ? 'none' : undefined}}>
-              {available === 0
-                ? total === 0
-                  ? 'Add team members to get started.'
-                  : 'No one is checked in right now.'
-                : balanceMode
-                  ? `Balancing across ${available} available — those with fewer assignments go first.`
-                  : `Picks from ${available} available — each person is picked once before the cycle repeats.`}
-            </p>
 
-            {/* Balance Us toggle */}
-            <div className="balance-row" onClick={() => setBalanceMode(b => !b)}>
-              <div className={`toggle-track${balanceMode ? ' on' : ''}`}>
-                <div className="toggle-thumb" />
+              <div className="card">
+                <div className="card-head">
+                  <span className="card-title">Team Roster</span>
+                  <span className="card-badge">{total}</span>
+                </div>
+                <div className="card-body">
+                  {showCycleLegend && (
+                    <div className="cycle-legend">
+                      <span className="cy-dot" />
+                      {assignedThisCycle} of {available || total} assigned this cycle
+                    </div>
+                  )}
+                  {total === 0 ? (
+                    <div className="empty-state">No one on the roster yet.<br />Add yourself above.</div>
+                  ) : (
+                    <div className="member-list">
+                      {members.map(m => (
+                        <MemberCard
+                          key={m.id}
+                          member={m}
+                          onCheckin={handleCheckin}
+                          onCheckout={handleCheckout}
+                          onRemove={handleRemove}
+                          onDragStart={handleDragStart}
+                          onDragEnd={handleDragEnd}
+                          isDragging={draggingId === m.id}
+                          balanceExcluded={balanceMode && !balanceAllEqual && m.is_checked_in && m.pick_count >= balanceMaxCount}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <span className={`balance-label${balanceMode ? ' active' : ''}`}>Balance Us</span>
             </div>
-            {balanceMode && (
-              <p className="balance-desc">
-                Cycles paused. Members with fewer total assignments are picked first until everyone is even.
-              </p>
-            )}
-          </div>
 
-          <div className="card">
-            <div className="card-title">
-              Upcoming Coverage
-              <span className="card-badge" style={{background:'var(--yellow)',color:'var(--dark)'}}>★</span>
-            </div>
-            <UpcomingWidget />
-          </div>
-
-          <div className="card">
-            <div className="card-title">
-              Assignment History
-              <span className="card-badge">{history.filter(h => h.type === 'pick').length}</span>
-            </div>
-            {history.length === 0 ? (
-              <div className="empty">No assignments yet.</div>
-            ) : (
-              <div className="history-list">
-                {(() => {
-                  let pastCycle = false;
-                  return history.map(item => {
-                    if (item.type === 'cycle') {
-                      pastCycle = true;
-                      return (
-                        <div key={`cycle-${item.id}`} className="cycle-marker">
-                          <span className="cycle-marker-line" />
-                          <span className="cycle-marker-text">
-                            ⚡ New Cycle — {fmtDateTime(item.ts)}
-                          </span>
-                          <span className="cycle-marker-line" />
-                        </div>
-                      );
-                    }
-                    const cls = pastCycle ? 'prev' : 'current';
-                    return (
-                      <div key={`pick-${item.id}`} className={`history-item ${cls}`}>
-                        <div>
-                          <div className="history-name">{item.first_name} {item.last_name}</div>
-                          <div className="history-ts">{fmtDateTime(item.ts)}</div>
-                        </div>
-                        <span className="history-check">✓ Assigned</span>
+            {/* Right column */}
+            <div className="a-right">
+              <div className="card">
+                <div className="card-head">
+                  <span className="card-title">Assign Work Item</span>
+                </div>
+                <div className="assign-body">
+                  {total > 0 && (
+                    <div className="stats-row">
+                      <div className="stat-chip">
+                        <span className={'val' + (available > 0 ? ' green' : '')}>{available}</span>
+                        <span className="lbl">Available</span>
                       </div>
-                    );
-                  });
-                })()}
+                      <div className="stat-chip">
+                        <span className="val">{total - available}</span>
+                        <span className="lbl">Out</span>
+                      </div>
+                      {!balanceMode && (
+                        <div className="stat-chip">
+                          <span className="val">{assignedThisCycle}/{available || total}</span>
+                          <span className="lbl">This Cycle</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <button
+                    className={'btn-assign' + (dropOver ? ' drop-over' : '')}
+                    onClick={handlePick}
+                    disabled={picking || available === 0}
+                    onDragEnter={handleDropZoneEnter}
+                    onDragLeave={handleDropZoneLeave}
+                    onDragOver={handleDropZoneOver}
+                    onDrop={handleDrop}
+                  >
+                    {dropOver ? '⚡ Drop to Assign' : picking ? 'Selecting…' : '⚡ Assign Someone'}
+                  </button>
+
+                  <p className={'assign-drag-hint' + (draggingId ? ' visible' : '')}>
+                    Drop here to manually assign
+                  </p>
+                  <p className="assign-hint" style={{display: draggingId ? 'none' : undefined}}>
+                    {available === 0
+                      ? (total === 0
+                        ? 'Add team members to get started.'
+                        : 'No one is checked in right now.')
+                      : balanceMode
+                        ? 'Balancing across ' + available + ' available — those with fewer assignments go first.'
+                        : 'Picks from ' + available + ' available — each person is picked once before the cycle repeats.'
+                    }
+                  </p>
+
+                  <div className="balance-row" onClick={() => setBalanceMode(b => !b)}>
+                    <div className={'toggle-track' + (balanceMode ? ' on' : '')}>
+                      <div className="toggle-thumb" />
+                    </div>
+                    <span className={'balance-lbl' + (balanceMode ? ' on' : '')}>Balance Us</span>
+                  </div>
+                  {balanceMode && (
+                    <p className="balance-desc">
+                      Cycles paused. Members with fewer total assignments are picked first until everyone is even.
+                    </p>
+                  )}
+                </div>
               </div>
-            )}
+
+              <div className="card">
+                <div className="card-head">
+                  <span className="card-title">Upcoming Coverage</span>
+                  <span className="card-badge" style={{background:'var(--yellow)',color:'#111',border:'none'}}>&#9733;</span>
+                </div>
+                <div className="card-body">
+                  <UpcomingWidget />
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-head">
+                  <span className="card-title">Assignment History</span>
+                  <span className="card-badge">{history.filter(h => h.type === 'pick').length}</span>
+                </div>
+                <div className="card-body">
+                  {history.length === 0 ? (
+                    <div className="empty-state" style={{padding:'16px 0'}}>No assignments yet.</div>
+                  ) : (
+                    <div className="history-list">
+                      {(function() {
+                        let pastCycle = false;
+                        return history.map(item => {
+                          if (item.type === 'cycle') {
+                            pastCycle = true;
+                            return (
+                              <div key={'cycle-' + item.id} className="cycle-marker">
+                                <span className="cy-line" />
+                                <span className="cy-text">⚡ New Cycle — {fmtDateTime(item.ts)}</span>
+                                <span className="cy-line" />
+                              </div>
+                            );
+                          }
+                          return (
+                            <div key={'pick-' + item.id} className={'history-item ' + (pastCycle ? 'prev' : 'current')}>
+                              <div>
+                                <div className="h-name">{item.first_name} {item.last_name}</div>
+                                <div className="h-ts">{fmtDateTime(item.ts)}</div>
+                              </div>
+                              <span className="h-badge">&#10003; Assigned</span>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <ResetCard onReset={handleReset} />
+            </div>
           </div>
+        )}
+      </main>
 
-          <ResetCard onReset={handleReset} />
-        </div>
-      </div>}
-
+      {/* ── Overlays ── */}
       {view === 'assigner' && pendingPick && (
         <PickModal pick={pendingPick} onConfirm={handleConfirm} onUnavailable={handleUnavailable} />
       )}
