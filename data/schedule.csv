@@ -1,0 +1,46 @@
+# Assigner Schedule CSV
+# Format: date,region,first_name,last_name,assignment
+# Date format: YYYY-MM-DD
+# Regions: US, NL, BNG
+# Edit this file with any text editor. Lines starting with # are ignored.
+# The first non-comment line must be the header row below.
+date,region,first_name,last_name,assignment
+2026-03-28,US,Alice,Nguyen,Weekend Shift
+2026-03-29,US,Bob,Martinez,Weekend Shift
+2026-03-30,US,Carol,Thompson,IC of the Week
+2026-03-30,US,Dave,Patel,Handover Facilitator
+2026-03-31,US,Alice,Nguyen,Learn
+2026-04-01,US,Eve,Chen,IC of the Week
+2026-04-01,US,Frank,Robinson,Handover Facilitator
+2026-04-02,US,Bob,Martinez,Training
+2026-04-03,US,Carol,Thompson,On Call
+2026-04-04,US,Dave,Patel,Weekend Shift
+2026-04-05,US,Eve,Chen,Weekend Shift
+2026-04-06,US,Frank,Robinson,IC of the Week
+2026-04-07,US,Alice,Nguyen,IC & Handover
+2026-04-08,US,Bob,Martinez,Learn
+2026-04-09,US,Carol,Thompson,Handover Facilitator
+2026-04-10,US,Dave,Patel,Training
+2026-03-30,NL,Greta,Janssen,IC of the Week
+2026-03-30,NL,Hans,De Vries,Handover Facilitator
+2026-03-31,NL,Inge,Bakker,Learn
+2026-04-01,NL,Greta,Janssen,Training
+2026-04-02,NL,Hans,De Vries,On Call
+2026-04-03,NL,Inge,Bakker,IC of the Week
+2026-04-04,NL,Greta,Janssen,Weekend Shift
+2026-04-05,NL,Hans,De Vries,Weekend Shift
+2026-04-06,NL,Inge,Bakker,Handover Facilitator
+2026-04-07,NL,Greta,Janssen,IC & Handover
+2026-03-30,BNG,Kumar,Rajan,IC of the Week
+2026-03-30,BNG,Priya,Shah,Handover Facilitator
+2026-03-31,BNG,Arjun,Mehta,Learn
+2026-04-01,BNG,Kumar,Rajan,Training
+2026-04-02,BNG,Priya,Shah,On Call
+2026-04-03,BNG,Arjun,Mehta,IC of the Week
+2026-04-04,BNG,Kumar,Rajan,Weekend Shift
+2026-04-05,BNG,Priya,Shah,Weekend Shift
+2026-04-06,BNG,Arjun,Mehta,Handover Facilitator
+2026-04-07,BNG,Kumar,Rajan,IC & Handover
+2026-04-08,BNG,Priya,Shah,Learn
+2026-04-09,BNG,Arjun,Mehta,Training
+2026-04-10,BNG,Kumar,Rajan,On Call

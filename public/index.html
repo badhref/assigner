@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assigner</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Light mode ── */
+    :root {
+      --page-bg:      #F2F2F7;
+      --yellow:       #FBCE07;
+      --yellow-dark:  #E6B800;
+      --red:          #DD1D21;
+      --dark:         #1C1C1E;
+      --mid:          #6E6E73;
+      --light:        #E5E5EA;
+      --border:       rgba(60,60,67,0.12);
+      --white:        #FFFFFF;
+      --green:        #34C759;
+      --green-bg:     #E8FBE8;
+      --green-border: rgba(52,199,89,0.25);
+      --amber:        #FF9F0A;
+      --amber-bg:     #FFF5E0;
+      --amber-border: rgba(255,159,10,0.3);
+      --shadow-sm:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md:    0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+      --shadow-lg:    0 20px 60px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.06);
+      --cycle-bg:     #FFFBE6;
+      --cycle-border: rgba(230,184,0,0.25);
+      --blur:         blur(20px);
+    }
+
+    /* ── Dark mode ── */
+    [data-theme="dark"] {
+      --page-bg:      #000000;
+      --dark:         #F5F5F7;
+      --mid:          #98989D;
+      --light:        #1C1C1E;
+      --border:       rgba(255,255,255,0.10);
+      --white:        #1C1C1E;
+      --green:        #32D74B;
+      --green-bg:     rgba(50,215,75,0.12);
+      --green-border: rgba(50,215,75,0.2);
+      --amber:        #FF9F0A;
+      --amber-bg:     rgba(255,159,10,0.12);
+      --amber-border: rgba(255,159,10,0.2);
+      --shadow-sm:    0 1px 3px rgba(0,0,0,0.4);
+      --shadow-md:    0 4px 16px rgba(0,0,0,0.5);
+      --shadow-lg:    0 20px 60px rgba(0,0,0,0.7), 0 4px 16px rgba(0,0,0,0.4);
+      --cycle-bg:     rgba(251,206,7,0.08);
+      --cycle-border: rgba(251,206,7,0.15);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--page-bg);
+      color: var(--dark);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    [data-theme="dark"] .header {
+      background: rgba(28,28,30,0.72);
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .header-brand { display: flex; align-items: center; gap: 0.875rem; }
+    .brand-mark {
+      width: 40px; height: 40px;
+      background: var(--yellow);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(251,206,7,0.4);
+      overflow: hidden;
+    }
+    .brand-mark img { width: 28px; height: 28px; object-fit: contain; }
+
+    .brand-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--dark);
+      letter-spacing: -0.03em;
+    }
+    .brand-sub { font-size: 0.72rem; color: var(--mid); margin-top: 0.05rem; font-weight: 400; letter-spacing: 0; }
+
+    .header-right { display: flex; align-items: center; gap: 1.25rem; }
+    .header-stats { display: flex; align-items: center; gap: 1.25rem; }
+    .hstat { text-align: center; }
+    .hstat-val { font-size: 1.25rem; font-weight: 700; color: var(--dark); line-height: 1; letter-spacing: -0.03em; }
+    .hstat-val.green { color: var(--green); }
+    .hstat-lbl { font-size: 0.65rem; color: var(--mid); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.15rem; font-weight: 500; }
+    .hstat-divider { width: 1px; height: 24px; background: var(--border); }
+
+    .theme-toggle {
+      width: 32px; height: 32px;
+      background: var(--light);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1;
+      color: var(--mid);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .theme-toggle:hover { background: var(--border); transform: scale(1.08); }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      grid-template-rows: auto;
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .top-bar {
+      grid-column: 1 / -1;
+    }
+    .top-bar .card-title { margin-bottom: 0.75rem; }
+    .top-bar form { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; }
+    .top-bar .form-row { display: flex; gap: 0.75rem; flex: 0 0 auto; }
+    .top-bar .form-row .field input { width: 160px; }
+    .top-bar .btn-register { width: auto; margin-top: 0; white-space: nowrap; padding: 0.6rem 1.25rem; }
+    .top-bar .form-error { width: 100%; }
+
+    .left-col  { display: flex; flex-direction: column; gap: 1rem; }
+    .right-col { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--mid);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-badge {
+      background: var(--light);
+      color: var(--mid);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      margin-left: auto;
+    }
+
+    /* ── Cycle legend ── */
+    .cycle-legend {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.72rem;
+      color: var(--mid);
+      padding: 0.45rem 0.75rem;
+      background: var(--cycle-bg);
+      border: 1px solid var(--cycle-border);
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    /* ── Form ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+    .field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .field label {
+      font-size: 0.68rem; font-weight: 600; color: var(--mid);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .field input {
+      padding: 0.6rem 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: var(--dark);
+      background: var(--page-bg);
+      outline: none;
+      font-family: inherit;
+      -webkit-font-smoothing: antialiased;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input::placeholder { color: var(--mid); opacity: 0.5; }
+    .field input:focus {
+      border-color: var(--yellow-dark);
+      box-shadow: 0 0 0 3.5px rgba(251,206,7,0.22);
+    }
+    .form-error { font-size: 0.78rem; color: var(--red); margin-top: 0.25rem; }
+    .btn-register {
+      width: 100%; margin-top: 0.75rem; padding: 0.65rem;
+      background: var(--yellow); color: var(--dark);
+      border: none; border-radius: 10px;
+      font-size: 0.875rem; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+      letter-spacing: -0.01em;
+      transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+      box-shadow: 0 2px 8px rgba(251,206,7,0.35);
+    }
+    .btn-register:hover:not(:disabled) {
+      background: var(--yellow-dark);
+      box-shadow: 0 4px 12px rgba(251,206,7,0.45);
+      transform: translateY(-1px);
+    }
+    .btn-register:active { transform: translateY(0); }
+    .btn-register:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+    /* ── Member list ── */
+    .member-list { display: flex; flex-direction: column; gap: 0.45rem; max-height: 520px; overflow-y: auto; }
+
+    /* ── Member card ── */
+    .member-card {
+      border: 1px solid rgba(251,206,7,0.35);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      background: rgba(251,206,7,0.08);
+      transition: box-shadow 0.2s, background 0.25s, opacity 0.25s, border-color 0.25s;
+      animation: slideIn 0.22s ease;
+    }
+    [data-theme="dark"] .member-card { background: rgba(251,206,7,0.06); border-color: rgba(251,206,7,0.18); }
+    .member-card.in    { background: rgba(251,206,7,0.13); border-color: rgba(251,206,7,0.4); box-shadow: var(--shadow-sm); }
+    [data-theme="dark"] .member-card.in { background: rgba(251,206,7,0.09); }
+    .member-card.timed { background: var(--amber-bg); border-color: var(--amber-border); }
+    .member-card.out   { background: var(--light); border-color: var(--border); opacity: 0.55; }
+    [data-theme="dark"] .member-card.out { background: #2C2C2E; }
+
+    /* Assigned this cycle — grey out visually, all interactions still work */
+    .member-card.assigned {
+      background: var(--light);
+      border-color: var(--border);
+      opacity: 0.5;
+    }
+    [data-theme="dark"] .member-card.assigned { background: #2C2C2E; border-color: rgba(255,255,255,0.07); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Member card rows */
+    .member-name-row {
+      display: flex; align-items: center; gap: 0.55rem;
+      margin-bottom: 0.5rem;
+    }
+    .member-actions-row {
+      display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
+    }
+
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .status-dot.in    { background: var(--green); box-shadow: 0 0 0 2.5px rgba(52,199,89,0.2); }
+    .status-dot.timed { background: var(--amber); box-shadow: 0 0 0 2.5px rgba(255,159,10,0.2); }
+    .status-dot.out   { background: var(--mid); opacity: 0.4; }
+
+    .member-name {
+      font-size: 0.92rem; font-weight: 600; color: var(--dark);
+      letter-spacing: -0.02em; flex: 1; min-width: 0;
+    }
+    .member-actions-spacer { flex: 1; }
+
+    /* Lightning bolt indicator */
+    .lightning {
+      font-size: 0.85rem;
+      line-height: 1;
+      flex-shrink: 0;
+      animation: boltPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes boltPop {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .status-badge {
+      font-size: 0.65rem; font-weight: 600;
+      padding: 0.2rem 0.55rem; border-radius: 999px; white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+    .status-badge.in    { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
+    .status-badge.timed { background: var(--amber-bg);  color: var(--amber);  border: 1px solid var(--amber-border); }
+    .status-badge.out   { background: var(--light);     color: var(--mid);    border: 1px solid var(--border); }
+
+    .assign-count { font-size: 0.65rem; color: var(--mid); white-space: nowrap; font-weight: 500; }
+
+    .btn-sm {
+      font-size: 0.72rem; font-weight: 600;
+      padding: 0.28rem 0.65rem; border-radius: 999px;
+      cursor: pointer; border: 1.5px solid; white-space: nowrap;
+      font-family: inherit;
+      transition: all 0.12s;
+    }
+    .btn-checkin  { background: var(--yellow); color: var(--dark); border-color: var(--yellow-dark); }
+    .btn-checkin:hover { background: var(--yellow-dark); }
+    .btn-checkout { background: transparent; color: var(--mid); border-color: var(--border); }
+    .btn-checkout:hover { color: var(--dark); border-color: var(--mid); }
+.btn-remove   { background: none; color: var(--mid); border-color: transparent; padding: 0.28rem 0.45rem; opacity: 0.5; }
+    .btn-remove:hover { color: var(--red); opacity: 1; }
+
+    .confirm-remove { display: flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; color: var(--mid); }
+    .btn-confirm-yes {
+      font-size: 0.68rem; font-weight: 700; padding: 0.22rem 0.5rem;
+      border-radius: 999px; cursor: pointer; border: none;
+      background: rgba(221,29,33,0.1); color: var(--red); font-family: inherit;
+    }
+    .btn-confirm-no {
+      font-size: 0.68rem; padding: 0.22rem 0.5rem; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--white); color: var(--mid); font-family: inherit;
+    }
+
+    /* ── Checkout panel ── */
+    .checkout-panel {
+      margin-top: 0.6rem; padding-top: 0.6rem;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .checkout-label { font-size: 0.72rem; color: var(--mid); font-weight: 600; white-space: nowrap; }
+    .mins-input {
+      width: 56px; padding: 0.28rem 0.5rem;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 0.82rem; color: var(--dark); background: var(--white);
+      outline: none; text-align: center; font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .mins-input:focus { border-color: var(--yellow-dark); box-shadow: 0 0 0 3px rgba(251,206,7,0.2); }
+    .mins-label { font-size: 0.72rem; color: var(--mid); }
+    .btn-dur {
+      font-size: 0.72rem; font-weight: 600; padding: 0.28rem 0.7rem;
+      border-radius: 999px; cursor: pointer; font-family: inherit;
+      border: 1.5px solid var(--yellow-dark);
+      background: var(--yellow); color: var(--dark);
+      transition: all 0.12s;
+    }
+    .btn-dur:hover { background: var(--yellow-dark); }
+    .btn-dur.rest  { background: transparent; color: var(--mid); border-color: var(--border); }
+    .btn-dur.rest:hover { color: var(--dark); border-color: var(--mid); }
+    .btn-dur.cancel { background: none; color: var(--mid); border-color: transparent; }
+    .btn-dur.cancel:hover { color: var(--dark); }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 2rem 1rem; color: var(--mid); font-size: 0.85rem; line-height: 1.7; }
+
+    /* ── Assign card ── */
+    .assign-card { text-align: center; padding: 2rem 1.5rem; }
+    .assign-card .card-title { justify-content: center; }
+    .stats-row { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .stat-chip {
+      text-align: center; padding: 0.65rem 1.1rem;
+      background: var(--page-bg); border: 1px solid var(--border); border-radius: 14px; min-width: 74px;
+    }
+    .stat-chip .val { font-size: 1.5rem; font-weight: 700; color: var(--dark); display: block; letter-spacing: -0.04em; }
+    .stat-chip .val.green { color: var(--green); }
+    .stat-chip .lbl { font-size: 0.62rem; color: var(--mid); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; margin-top: 0.1rem; }
+
+    .btn-assign {
+      background: var(--yellow); color: var(--dark);
+      border: 2px dashed transparent; border-radius: 999px;
+      font-size: 1rem; font-weight: 700; padding: 0.875rem 2.75rem;
+      cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
+      box-shadow: 0 4px 16px rgba(251,206,7,0.45);
+      transition: background 0.15s, box-shadow 0.15s, transform 0.12s, border-color 0.15s, padding 0.15s;
+    }
+    .btn-assign:hover:not(:disabled):not(.drop-over) {
+      background: var(--yellow-dark);
+      box-shadow: 0 6px 20px rgba(251,206,7,0.55);
+      transform: translateY(-1px);
+    }
+    .btn-assign:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(251,206,7,0.3); }
+    .btn-assign:disabled { background: var(--light); color: var(--mid); box-shadow: none; cursor: not-allowed; }
+
+    /* Drop zone active state */
+    .btn-assign.drop-over {
+      background: var(--yellow-dark);
+      border-color: var(--dark);
+      box-shadow: 0 0 0 4px rgba(251,206,7,0.35), 0 6px 24px rgba(251,206,7,0.6);
+      transform: scale(1.06);
+    }
+
+    /* Dragging hint text under button */
+    .assign-drag-hint {
+      margin-top: 0.75rem;
+      font-size: 0.72rem;
+      color: var(--mid);
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .assign-drag-hint.visible { opacity: 1; }
+
+    .assign-hint { margin-top: 1rem; font-size: 0.78rem; color: var(--mid); line-height: 1.6; }
+
+    /* ── Balance mode toggle ── */
+    .balance-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.6rem; margin-top: 1.1rem; cursor: pointer; user-select: none;
+    }
+    .balance-label {
+      font-size: 0.8rem; font-weight: 600; color: var(--mid);
+      letter-spacing: -0.01em; transition: color 0.2s;
+    }
+    .balance-label.active { color: var(--dark); }
+    .toggle-track {
+      width: 42px; height: 24px;
+      background: var(--light);
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      position: relative;
+      transition: background 0.22s, border-color 0.22s;
+      flex-shrink: 0;
+    }
+    .toggle-track.on { background: var(--yellow); border-color: var(--yellow-dark); }
+    .toggle-thumb {
+      width: 18px; height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px; left: 2px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.22);
+      transition: transform 0.22s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    .toggle-track.on .toggle-thumb { transform: translateX(18px); }
+    .balance-desc {
+      font-size: 0.72rem; color: var(--mid); line-height: 1.5;
+      margin-top: 0.5rem; padding: 0.55rem 0.85rem;
+      background: var(--page-bg); border-radius: 10px;
+      border: 1px solid var(--border);
+      animation: slideIn 0.18s ease;
+    }
+
+    /* Draggable member cards */
+    .member-card.draggable { cursor: grab; }
+    .member-card.draggable:active { cursor: grabbing; }
+    .member-card.is-dragging { opacity: 0.4; transform: scale(0.98); }
+
+    /* ── History ── */
+    .history-list { display: flex; flex-direction: column; gap: 0.35rem; max-height: 360px; overflow-y: auto; }
+    .history-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.6rem 0.85rem;
+      background: var(--page-bg); border-radius: 10px; font-size: 0.83rem;
+      animation: slideIn 0.22s ease;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .history-item.current {
+      background: rgba(251,206,7,0.12);
+      border: 1px solid rgba(251,206,7,0.3);
+    }
+    .history-item.current .history-name  { color: #7A6000; }
+    .history-item.current .history-ts    { color: #A08000; }
+    .history-item.current .history-check { color: #A08000; }
+    [data-theme="dark"] .history-item.current { background: rgba(251,206,7,0.10); border-color: rgba(251,206,7,0.2); }
+    [data-theme="dark"] .history-item.current .history-name  { color: #FBCE07; }
+    [data-theme="dark"] .history-item.current .history-ts    { color: #C4A000; }
+    [data-theme="dark"] .history-item.current .history-check { color: #C4A000; }
+    .history-item.prev { opacity: 0.4; }
+    .history-name  { font-weight: 600; color: var(--dark); letter-spacing: -0.01em; }
+    .history-ts    { font-size: 0.68rem; color: var(--mid); margin-top: 0.1rem; }
+    .history-check { color: var(--green); font-weight: 600; font-size: 0.72rem; white-space: nowrap; }
+
+    /* Cycle marker row */
+    .cycle-marker {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.25rem 0;
+      animation: slideIn 0.22s ease;
+    }
+    .cycle-marker-line { flex: 1; height: 1px; background: var(--yellow-dark); opacity: 0.4; }
+    .cycle-marker-text {
+      font-size: 0.65rem; font-weight: 600; color: var(--mid);
+      white-space: nowrap; letter-spacing: 0.04em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+
+    /* ── Modal ── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; animation: fadeIn 0.18s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: var(--white); border-radius: 22px;
+      width: 92%; max-width: 400px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden; animation: slideUp 0.22s cubic-bezier(0.34,1.3,0.64,1);
+      border: 1px solid var(--border);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px) scale(0.97); opacity: 0; }
+      to   { transform: translateY(0) scale(1);       opacity: 1; }
+    }
+    .modal-header { background: var(--yellow); padding: 1.5rem 1.5rem 1.25rem; text-align: center; }
+    .modal-header-label {
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.1em; color: rgba(64,64,64,0.55); margin-bottom: 0.35rem;
+    }
+    .modal-name { font-size: 1.75rem; font-weight: 700; color: #1C1C1E; letter-spacing: -0.04em; }
+    .modal-body { padding: 1.25rem 1.5rem 1.5rem; }
+    .modal-stats {
+      background: var(--page-bg); border-radius: 12px; padding: 0.75rem 1rem;
+      font-size: 0.82rem; color: var(--mid); margin-bottom: 1.1rem;
+      display: flex; justify-content: space-between; border: 1px solid var(--border);
+    }
+    .modal-question { font-size: 0.92rem; font-weight: 600; color: var(--dark); text-align: center; margin-bottom: 1rem; letter-spacing: -0.01em; }
+    .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+    .btn-modal-yes {
+      padding: 0.75rem; background: var(--green); color: #fff;
+      border: none; border-radius: 12px; font-size: 0.875rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
+      transition: filter 0.15s, transform 0.12s;
+    }
+    .btn-modal-yes:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-modal-no {
+      padding: 0.75rem; background: rgba(221,29,33,0.08); color: var(--red);
+      border: 1px solid rgba(221,29,33,0.18); border-radius: 12px;
+      font-size: 0.875rem; font-weight: 600; cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
+      transition: background 0.15s, transform 0.12s;
+    }
+    .btn-modal-no:hover { background: rgba(221,29,33,0.13); transform: translateY(-1px); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      padding: 0.75rem 1.15rem; border-radius: 14px;
+      font-size: 0.82rem; font-weight: 600; font-family: inherit;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      z-index: 200; animation: toastIn 0.28s cubic-bezier(0.34,1.3,0.64,1); max-width: 300px;
+      letter-spacing: -0.01em;
+      backdrop-filter: blur(12px);
+    }
+    .toast.success { background: var(--green); color: #fff; }
+    .toast.error   { background: var(--red);   color: #fff; }
+    .toast.info    { background: rgba(28,28,30,0.88); color: #F5F5F7; }
+    [data-theme="dark"] .toast.info { background: rgba(255,255,255,0.14); color: var(--dark); }
+    @keyframes toastIn {
+      from { transform: translateX(16px) scale(0.95); opacity: 0; }
+      to   { transform: translateX(0) scale(1);       opacity: 1; }
+    }
+
+    /* ── Reset card ── */
+    .reset-card { padding: 1rem 1.25rem; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    @media (max-width: 860px) {
+      .container { grid-template-columns: 1fr; padding: 1rem; }
+      .header-stats { display: none; }
+    }
+
+    /* ── Nav tabs ── */
+    .nav-tabs {
+      display: flex; align-items: center; gap: 0.25rem;
+      background: var(--light); border-radius: 10px; padding: 0.2rem;
+    }
+    .nav-tab {
+      padding: 0.35rem 0.85rem; border-radius: 8px; font-size: 0.82rem;
+      font-weight: 600; cursor: pointer; border: none; background: transparent;
+      color: var(--mid); font-family: inherit; transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .nav-tab:hover { color: var(--dark); }
+    .nav-tab.active {
+      background: var(--white); color: var(--dark);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ── Region pills ── */
+    .region-pills {
+      display: flex; align-items: center; gap: 0.25rem;
+      background: var(--light); border-radius: 10px; padding: 0.2rem;
+    }
+    .region-pill {
+      padding: 0.3rem 0.75rem; border-radius: 7px; font-size: 0.78rem;
+      font-weight: 700; cursor: pointer; border: none; background: transparent;
+      color: var(--mid); font-family: inherit; transition: all 0.15s;
+      letter-spacing: 0.03em;
+    }
+    .region-pill:hover { color: var(--dark); }
+    .region-pill.active {
+      background: var(--yellow); color: var(--dark);
+      box-shadow: 0 1px 4px rgba(251,206,7,0.4);
+    }
+
+    /* ── Scheduler wrapper ── */
+    .scheduler-wrap {
+      max-width: 1280px; margin: 0 auto; padding: 1.5rem 2rem;
+    }
+    .sched-nav {
+      display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;
+    }
+    .sched-nav-btn {
+      width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--border);
+      background: var(--white); color: var(--dark); cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; font-family: inherit;
+    }
+    .sched-nav-btn:hover { border-color: var(--yellow-dark); background: var(--yellow); }
+    .sched-nav-title {
+      font-size: 1.15rem; font-weight: 700; color: var(--dark);
+      letter-spacing: -0.03em; flex: 1;
+    }
+    .sched-today-btn {
+      padding: 0.35rem 0.85rem; border-radius: 8px; font-size: 0.78rem;
+      font-weight: 600; cursor: pointer; border: 1.5px solid var(--border);
+      background: var(--white); color: var(--mid); font-family: inherit;
+      transition: all 0.15s;
+    }
+    .sched-today-btn:hover { border-color: var(--yellow-dark); color: var(--dark); }
+
+    .sched-section { margin-bottom: 2rem; }
+    .sched-section-title {
+      font-size: 0.72rem; font-weight: 600; color: var(--mid);
+      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.75rem;
+    }
+
+    /* ── Shared table ── */
+    .sched-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); background: var(--white); }
+    .sched-table {
+      width: 100%; border-collapse: collapse; font-size: 0.82rem;
+    }
+    .sched-table th {
+      background: var(--page-bg); padding: 0.55rem 0.75rem;
+      font-size: 0.68rem; font-weight: 600; color: var(--mid);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center;
+    }
+    .sched-table th:first-child { text-align: left; }
+    .sched-table td {
+      padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--border);
+      vertical-align: middle; text-align: center;
+    }
+    .sched-table tr:last-child td { border-bottom: none; }
+
+    /* Summary count cells */
+    .sched-type-cell {
+      text-align: left !important; font-weight: 600; color: var(--dark);
+      white-space: nowrap; min-width: 140px;
+    }
+    .sched-count { font-weight: 600; color: var(--dark); }
+    .sched-count.zero { color: var(--mid); opacity: 0.4; font-weight: 400; }
+
+    /* Grid columns */
+    .sched-grid-table .wk-col { width: 40px; min-width: 40px; }
+    .sched-grid-table .dt-col { width: 50px; min-width: 44px; }
+    .sched-grid-table .dy-col { width: 36px; min-width: 32px; }
+    .wk-cell {
+      font-size: 0.65rem; font-weight: 700; color: var(--mid);
+      text-align: center !important; opacity: 0.6;
+    }
+    .dt-cell {
+      text-align: center !important; white-space: nowrap; color: var(--mid);
+      font-size: 0.78rem; font-weight: 600;
+    }
+    .dy-cell {
+      text-align: center !important; white-space: nowrap; color: var(--mid);
+      font-size: 0.72rem; font-weight: 500;
+    }
+    .sched-cell { min-width: 80px; }
+    .sched-pills { display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center; }
+    .sched-pill {
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px;
+      font-size: 0.68rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.02em;
+    }
+
+    /* Weekend & today row tints */
+    .sched-table tr.weekend td { background: rgba(0,0,0,0.025); }
+    [data-theme="dark"] .sched-table tr.weekend td { background: rgba(255,255,255,0.03); }
+    .sched-table tr.today td {
+      background: rgba(251,206,7,0.10);
+    }
+    [data-theme="dark"] .sched-table tr.today td {
+      background: rgba(251,206,7,0.07);
+    }
+
+    /* Empty scheduler state */
+    .sched-empty {
+      text-align: center; padding: 3rem 2rem; color: var(--mid);
+      font-size: 0.88rem; line-height: 1.8;
+      background: var(--white); border-radius: 14px; border: 1px solid var(--border);
+    }
+    .sched-empty code {
+      background: var(--page-bg); padding: 0.1rem 0.45rem;
+      border-radius: 6px; font-size: 0.82rem; color: var(--dark);
+      border: 1px solid var(--border);
+    }
+    @media (max-width: 860px) { .scheduler-wrap { padding: 1rem; } }
+
+    /* ── Upcoming coverage widget ─────────────────────────────────────────── */
+    .upcoming-empty { font-size: 0.82rem; color: var(--mid); text-align: center; padding: 1rem 0; }
+    .upcoming-week-label {
+      font-size: 0.65rem; font-weight: 700; color: var(--mid);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 0.5rem; margin-top: 1rem; padding-bottom: 0.3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .upcoming-week-label:first-child { margin-top: 0; }
+    .upcoming-role-row {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.38rem 0; border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+    .upcoming-role-row:last-child { border-bottom: none; }
+    .upcoming-role-name { color: var(--mid); font-weight: 500; flex: 1; min-width: 0; }
+    .upcoming-role-member { color: var(--dark); font-weight: 600; white-space: nowrap; }
+
+    /* ── Roles editor ─────────────────────────────────────────────────────── */
+    .roles-hint { font-size: 0.8rem; color: var(--mid); margin-bottom: 1.1rem; line-height: 1.6; padding: 0.6rem 0.85rem; background: var(--page-bg); border: 1px solid var(--border); border-radius: 10px; }
+    .roles-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .roles-table th { font-size: 0.63rem; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.07em; padding: 0.4rem 0.75rem; text-align: left; border-bottom: 2px solid var(--border); }
+    .roles-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); color: var(--dark); vertical-align: middle; }
+    .roles-table tbody tr:last-child td { border-bottom: none; }
+    .role-feat-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0.1rem 0.4rem; border-radius: 6px; transition: all 0.15s; color: var(--mid); line-height: 1; }
+    .role-feat-btn.active { color: var(--yellow-dark); }
+    .role-feat-btn:hover:not(:disabled) { background: var(--light); }
+    .role-del-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: var(--mid); padding: 0.2rem 0.45rem; border-radius: 6px; transition: all 0.15s; opacity: 0.5; }
+    .role-del-btn:hover:not(:disabled) { color: var(--red); opacity: 1; background: rgba(221,29,33,0.07); }
+    .role-rename-btn { background: none; border: none; cursor: pointer; font-size: 0.78rem; padding: 0.1rem 0.3rem; margin-left: 0.3rem; opacity: 0; border-radius: 5px; transition: all 0.15s; vertical-align: middle; }
+    tr:hover .role-rename-btn { opacity: 0.5; }
+    .role-rename-btn:hover { opacity: 1 !important; background: var(--light); }
+    .roles-add-section { margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--border); }
+    .roles-add-label { font-size: 0.62rem; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 0.25rem; }
+    .roles-add-input { width: 100%; padding: 0.5rem 0.75rem; border: 1.5px solid var(--border); border-radius: 10px; font-size: 0.85rem; color: var(--dark); background: var(--page-bg); outline: none; font-family: inherit; transition: border-color 0.15s; }
+    .roles-add-input:focus { border-color: var(--yellow-dark); box-shadow: 0 0 0 3px rgba(251,206,7,0.2); }
+    .color-presets { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
+    .color-swatch { width: 24px; height: 24px; border-radius: 6px; cursor: pointer; border: 2.5px solid transparent; transition: transform 0.12s, border-color 0.12s; overflow: hidden; }
+    .color-swatch:hover { transform: scale(1.18); }
+    .color-swatch.selected { border-color: var(--dark); transform: scale(1.1); }
+    .role-featured-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--mid); cursor: pointer; padding: 0.45rem 0; user-select: none; }
+    .role-featured-check input { accent-color: var(--yellow-dark); width: 15px; height: 15px; cursor: pointer; }
+
+    /* Scheduler sub-nav */
+    .sched-subnav { display: flex; gap: 0.35rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .sched-subnav-btn { padding: 0.38rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; font-family: inherit; cursor: pointer; border: 1.5px solid var(--border); background: transparent; color: var(--mid); transition: all 0.15s; }
+    .sched-subnav-btn.active { background: var(--yellow); color: var(--dark); border-color: var(--yellow-dark); }
+    .sched-subnav-btn:hover:not(.active) { border-color: var(--mid); color: var(--dark); }
+    /* Year nav */
+    .year-nav { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+    .year-nav-btn { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--white); color: var(--dark); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: all 0.15s; }
+    .year-nav-btn:hover { background: var(--yellow); border-color: var(--yellow-dark); }
+    .year-label { font-size: 0.82rem; font-weight: 700; color: var(--dark); min-width: 38px; text-align: center; letter-spacing: -0.01em; }
+    /* Import/Export */
+    .backup-section { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .backup-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .backup-title { font-size: 0.68rem; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.65rem; }
+    .backup-desc { font-size: 0.8rem; color: var(--mid); margin-bottom: 0.85rem; line-height: 1.6; }
+    .import-result { font-size: 0.82rem; padding: 0.55rem 0.85rem; border-radius: 10px; margin-top: 0.75rem; }
+    .import-result.success { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .import-result.warn    { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+    .import-file-label { display: inline-block; padding: 0.5rem 1rem; background: var(--page-bg); border: 1.5px dashed var(--border); border-radius: 10px; font-size: 0.82rem; color: var(--mid); cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .import-file-label:hover { border-color: var(--yellow-dark); color: var(--dark); }
+    .import-file-input { display: none; }
+
+    /* ── Scheduler edit modal ─────────────────────────────────────────────── */
+    .sched-edit-modal {
+      background: var(--white); border-radius: 18px;
+      width: 92%; max-width: 480px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      animation: slideUp 0.2s cubic-bezier(0.34,1.3,0.64,1);
+      overflow: hidden;
+    }
+    .sched-edit-header {
+      background: var(--yellow);
+      padding: 1rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sched-edit-title { font-size: 0.9rem; font-weight: 700; color: #1C1C1E; letter-spacing: -0.02em; }
+    .sched-edit-sub { font-size: 0.72rem; color: rgba(28,28,30,0.6); margin-top: 0.15rem; }
+    .sched-edit-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(28,28,30,0.12); border: none; cursor: pointer;
+      font-size: 0.9rem; color: #1C1C1E; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.15s;
+    }
+    .sched-edit-close:hover { background: rgba(28,28,30,0.22); }
+    .sched-edit-body { padding: 1.1rem 1.25rem 1.25rem; }
+    .sched-edit-section { font-size: 0.65rem; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; margin-top: 0.85rem; }
+    .sched-edit-section:first-child { margin-top: 0; }
+    .sched-edit-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; min-height: 28px; }
+    .sched-edit-pill {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.25rem 0.6rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .sched-edit-pill-remove {
+      background: none; border: none; cursor: pointer;
+      font-size: 0.7rem; line-height: 1; opacity: 0.6; padding: 0;
+      color: inherit; transition: opacity 0.12s;
+    }
+    .sched-edit-pill-remove:hover { opacity: 1; }
+    .sched-edit-empty { font-size: 0.8rem; color: var(--mid); }
+    .sched-add-row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
+    .sched-role-select {
+      flex: 1; padding: 0.5rem 0.75rem;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 0.85rem; color: var(--dark); background: var(--page-bg);
+      outline: none; font-family: inherit; cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .sched-role-select:focus { border-color: var(--yellow-dark); box-shadow: 0 0 0 3px rgba(251,206,7,0.2); }
+    .sched-add-btn {
+      padding: 0.5rem 1rem; background: var(--yellow); color: var(--dark);
+      border: none; border-radius: 10px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .sched-add-btn:hover:not(:disabled) { background: var(--yellow-dark); }
+    .sched-add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Make scheduler cells clickable */
+    .sched-cell { cursor: pointer; transition: background 0.12s; vertical-align: top; }
+    .sched-cell:hover { background: rgba(251,206,7,0.12); }
+    [data-theme="dark"] .sched-cell:hover { background: rgba(251,206,7,0.08); }
+    .sched-cell-active { background: var(--card-bg) !important; outline: 2px solid var(--yellow-dark); outline-offset: -2px; cursor: default; vertical-align: top; }
+    .sched-cell-inner { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.15rem 0; }
+    .sched-pill-x { background: none; border: none; cursor: pointer; font-size: 0.6rem; color: inherit; opacity: 0.6; padding: 0 0 0 0.25rem; line-height: 1; vertical-align: middle; }
+    .sched-pill-x:hover { opacity: 1; }
+    .sched-inline-add { display: flex; gap: 0.25rem; align-items: center; margin-top: 0.1rem; }
+    .sched-inline-select { font-size: 0.7rem; border: 1px solid var(--border); border-radius: 6px; background: var(--page-bg); color: var(--dark); padding: 0.15rem 0.25rem; max-width: 110px; cursor: pointer; font-family: inherit; }
+    .sched-inline-btn { font-size: 0.68rem; padding: 0.15rem 0.4rem; border-radius: 6px; border: none; background: var(--yellow-dark); color: #000; font-weight: 700; cursor: pointer; line-height: 1.4; }
+    .sched-inline-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .sched-cell-add {
+      display: inline-block; font-size: 0.65rem; color: var(--mid);
+      opacity: 0; transition: opacity 0.12s;
+    }
+    .sched-cell:hover .sched-cell-add { opacity: 0.6; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function fmtDateTime(dt) {
+  if (!dt) return '';
+  const d = new Date(dt.replace(' ', 'T') + 'Z');
+  return d.toLocaleString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true,
+  });
+}
+
+function getReturnTime(checkout_until) {
+  if (!checkout_until) return null;
+  const until = new Date(checkout_until.replace(' ', 'T') + 'Z');
+  if (until <= Date.now()) return null;
+  return until.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
+function memberStatus(m) {
+  if (m.is_checked_in) return 'in';
+  if (m.checkout_until) return 'timed';
+  return 'out';
+}
+
+async function api(method, url, body) {
+  const res = await fetch(url, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+// ── Shell Logo ────────────────────────────────────────────────────────────────
+
+function ShellLogo({ size = 28 }) {
+  return <img src="/shell-logo.png" width={size} height={size} style={{ objectFit: 'contain', display: 'block' }} alt="Shell" />;
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
+function Toast({ message, type, onDone }) {
+  useEffect(() => { const t = setTimeout(onDone, 3500); return () => clearTimeout(t); }, []);
+  return <div className={`toast ${type}`}>{message}</div>;
+}
+
+// ── Register form ─────────────────────────────────────────────────────────────
+
+function RegisterForm({ onAdded, region }) {
+  const [form, setForm] = useState({ first_name: '', last_name: '' });
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!form.first_name.trim() || !form.last_name.trim()) return setError('First and last name are required.');
+    setBusy(true); setError('');
+    try {
+      const member = await api('POST', '/api/members', { ...form, region });
+      onAdded(member);
+      setForm({ first_name: '', last_name: '' });
+    } catch (err) { setError(err.message); }
+    finally { setBusy(false); }
+  }
+
+  return (
+    <form onSubmit={submit}>
+      <div className="form-row">
+        <div className="field">
+          <label>First Name</label>
+          <input type="text" placeholder="Jane" value={form.first_name} onChange={set('first_name')} />
+        </div>
+        <div className="field">
+          <label>Last Name</label>
+          <input type="text" placeholder="Smith" value={form.last_name} onChange={set('last_name')} />
+        </div>
+
+      </div>
+      {error && <p className="form-error">{error}</p>}
+      <button type="submit" className="btn-register" disabled={busy}>
+        {busy ? 'Adding…' : '+ Add Member'}
+      </button>
+    </form>
+  );
+}
+
+// ── Checkout panel ────────────────────────────────────────────────────────────
+
+function CheckoutPanel({ onConfirm, onCancel }) {
+  const [mins, setMins] = useState('30');
+  return (
+    <div className="checkout-panel">
+      <span className="checkout-label">Out for:</span>
+      <input
+        type="number" className="mins-input" min="1" max="480"
+        value={mins} onChange={e => setMins(e.target.value)}
+      />
+      <span className="mins-label">min</span>
+      <button className="btn-dur" onClick={() => onConfirm(Math.max(1, parseInt(mins) || 30))}>Check Out</button>
+      <button className="btn-dur rest" onClick={() => onConfirm(null)}>Rest of Day</button>
+      <button className="btn-dur cancel" onClick={onCancel}>Cancel</button>
+    </div>
+  );
+}
+
+// ── Member card ───────────────────────────────────────────────────────────────
+
+function MemberCard({ member, onCheckin, onCheckout, onRemove, onDragStart, onDragEnd, isDragging, balanceExcluded }) {
+  const [showCheckout, setShowCheckout]   = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const status   = memberStatus(member);
+  const returnAt = getReturnTime(member.checkout_until);
+
+  const statusLabel = status === 'in'
+    ? 'Available'
+    : status === 'timed' && returnAt
+    ? `Returns ${returnAt}`
+    : 'Out';
+
+  function handleCheckoutConfirm(mins) {
+    setShowCheckout(false);
+    onCheckout(member.id, mins);
+  }
+
+  const canDrag = status === 'in';
+
+  return (
+    <div
+      className={`member-card ${status}${(member.current_cycle_assigned || balanceExcluded) ? ' assigned' : ''}${canDrag ? ' draggable' : ''}${isDragging ? ' is-dragging' : ''}`}
+      draggable={canDrag}
+      onDragStart={canDrag ? (e) => { e.dataTransfer.effectAllowed = 'move'; onDragStart(member.id); } : undefined}
+      onDragEnd={canDrag ? onDragEnd : undefined}
+    >
+      {/* Row 1: name */}
+      <div className="member-name-row">
+        <div className={`status-dot ${status}`} />
+        <span className="member-name">{member.first_name} {member.last_name}</span>
+      </div>
+      {/* Row 2: actions */}
+      <div className="member-actions-row">
+        <span className={`status-badge ${status}`}>{statusLabel}</span>
+        <span className="assign-count">{member.pick_count}×</span>
+        <span className="member-actions-spacer" />
+        {status === 'out' || status === 'timed' ? (
+          <button className="btn-sm btn-checkin" onClick={() => onCheckin(member.id)}>Check In</button>
+        ) : (
+          <button className="btn-sm btn-checkout" onClick={() => setShowCheckout(v => !v)}>Check Out</button>
+        )}
+        {confirmRemove ? (
+          <div className="confirm-remove">
+            <span>Remove?</span>
+            <button className="btn-confirm-yes" onClick={() => { onRemove(member.id); setConfirmRemove(false); }}>Yes</button>
+            <button className="btn-confirm-no"  onClick={() => setConfirmRemove(false)}>No</button>
+          </div>
+        ) : (
+          <button className="btn-sm btn-remove" onClick={() => setConfirmRemove(true)} title="Remove">✕</button>
+        )}
+      </div>
+      {showCheckout && (
+        <CheckoutPanel onConfirm={handleCheckoutConfirm} onCancel={() => setShowCheckout(false)} />
+      )}
+    </div>
+  );
+}
+
+// ── Pick modal ────────────────────────────────────────────────────────────────
+
+function PickModal({ pick, onConfirm, onUnavailable }) {
+  const m = pick.member;
+  return (
+    <div className="overlay">
+      <div className="modal">
+        <div className="modal-header">
+          <div className="modal-header-label">Selected for Assignment</div>
+          <div className="modal-name">{m.first_name} {m.last_name}</div>
+        </div>
+        <div className="modal-body">
+          <div className="modal-stats">
+            <span>Status: <strong style={{color:'var(--green)'}}>Available</strong></span>
+            <span>Total assignments: <strong>{m.pick_count}</strong></span>
+          </div>
+          <div className="modal-question">Was the work item successfully assigned?</div>
+          <div className="modal-actions">
+            <button className="btn-modal-yes" onClick={onConfirm}>✓ Yes, Assigned</button>
+            <button className="btn-modal-no"  onClick={onUnavailable}>✕ Not Available</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Reset card ────────────────────────────────────────────────────────────────
+
+function ResetCard({ onReset }) {
+  const [confirming, setConfirming] = useState(false);
+  return (
+    <div className="card reset-card">
+      <div className="card-title" style={{marginBottom: confirming ? '0.75rem' : 0}}>Master Reset</div>
+      {confirming ? (
+        <div>
+          <p style={{fontSize:'0.82rem',color:'var(--mid)',marginBottom:'0.75rem',lineHeight:1.6}}>
+            Resets all assignment counts, clears cycle progress, checks everyone out, and erases history. The roster is not affected.
+          </p>
+          <div style={{display:'flex',gap:'0.6rem'}}>
+            <button
+              onClick={() => { onReset(); setConfirming(false); }}
+              style={{padding:'0.55rem 1.1rem',background:'var(--red)',color:'#fff',border:'none',borderRadius:'999px',fontWeight:600,fontSize:'0.82rem',cursor:'pointer',fontFamily:'inherit'}}
+            >Reset Everything</button>
+            <button
+              onClick={() => setConfirming(false)}
+              style={{padding:'0.55rem 1rem',background:'transparent',color:'var(--mid)',border:'1.5px solid var(--border)',borderRadius:'999px',fontSize:'0.82rem',cursor:'pointer',fontFamily:'inherit'}}
+            >Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setConfirming(true)}
+          style={{fontSize:'0.78rem',color:'var(--mid)',background:'transparent',border:'1.5px solid var(--border)',borderRadius:'999px',padding:'0.4rem 0.9rem',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}
+          onMouseOver={e => { e.target.style.color='var(--red)'; e.target.style.borderColor='rgba(221,29,33,0.3)'; }}
+          onMouseOut={e =>  { e.target.style.color='var(--mid)'; e.target.style.borderColor='var(--border)'; }}
+        >Reset All Assignments &amp; History</button>
+      )}
+    </div>
+  );
+}
+
+// ── Upcoming Coverage widget ──────────────────────────────────────────────────
+
+function UpcomingWidget() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    function load() {
+      api('GET', '/api/schedule/upcoming')
+        .then(d => setData(d))
+        .catch(() => setData({ types: {}, entries: [] }));
+    }
+    load();
+    const poll = setInterval(load, 30_000);
+    return () => clearInterval(poll);
+  }, []);
+
+  if (!data) return <div className="upcoming-empty">Loading…</div>;
+
+  // Monday-based week boundary
+  const now = new Date();
+  const dow = now.getUTCDay();
+  const daysToMon = dow === 0 ? 6 : dow - 1;
+  const mon = new Date(now);
+  mon.setUTCDate(now.getUTCDate() - daysToMon);
+  const nextMon = new Date(mon);
+  nextMon.setUTCDate(mon.getUTCDate() + 7);
+  const pad = n => String(n).padStart(2, '0');
+  const nextMonStr = `${nextMon.getUTCFullYear()}-${pad(nextMon.getUTCMonth()+1)}-${pad(nextMon.getUTCDate())}`;
+
+  // Bucket by week → region → role → personKey → { name, dates[] }
+  const REGIONS = ['US', 'NL', 'BNG'];
+  const REGION_COLORS = { US: '#1D4ED8', NL: '#059669', BNG: '#D97706' };
+  const roleOrder = Object.keys(data.types);
+  const DAY_ABBR = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
+
+  function emptyBucket() {
+    const b = {};
+    REGIONS.forEach(r => { b[r] = {}; });
+    return b;
+  }
+  const thisWeek = emptyBucket(), nextWeek = emptyBucket();
+
+  for (const e of data.entries) {
+    const bucket = e.date < nextMonStr ? thisWeek : nextWeek;
+    const reg = e.region || 'US';
+    if (!bucket[reg]) bucket[reg] = {};
+    if (!bucket[reg][e.assignment]) bucket[reg][e.assignment] = {};
+    const fullName = `${e.first_name} ${e.last_name}`;
+    if (!bucket[reg][e.assignment][fullName]) {
+      bucket[reg][e.assignment][fullName] = { name: fullName, dates: [] };
+    }
+    bucket[reg][e.assignment][fullName].dates.push(e.date);
+  }
+
+  function dateDow(dateStr) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  }
+
+  function RegionBlock({ region, roleBucket }) {
+    const allRoles = [...new Set([...roleOrder, ...Object.keys(roleBucket)])];
+    const rows = [];
+    for (const role of allRoles) {
+      if (!roleBucket[role]) continue;
+      const t = data.types[role] || {};
+      const people = Object.values(roleBucket[role]);
+      const showDays = people.length > 1;
+      for (const person of people) {
+        const dayStr = showDays
+          ? [...person.dates].sort().map(d => DAY_ABBR[dateDow(d)]).join(', ')
+          : '';
+        rows.push({ role, name: person.name, dayStr, t });
+      }
+    }
+    if (rows.length === 0) return null;
+    const color = REGION_COLORS[region] || 'var(--mid)';
+    return (
+      <div style={{ marginBottom: '0.6rem' }}>
+        <div style={{
+          fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase',
+          letterSpacing: '0.08em', color, marginBottom: '0.3rem',
+          paddingBottom: '0.2rem', borderBottom: `1.5px solid ${color}22`,
+        }}>{region}</div>
+        {rows.map((r, i) => (
+          <div key={i} className="upcoming-role-row">
+            <span className="upcoming-role-name" style={{ color: r.t.color || 'var(--mid)', fontWeight: 600 }}>
+              {r.role}
+            </span>
+            <span style={{ color: 'var(--mid)', margin: '0 0.3rem', fontWeight: 400 }}>—</span>
+            <span className="upcoming-role-member">{r.name}</span>
+            {r.dayStr && (
+              <span style={{ color: 'var(--mid)', fontSize: '0.78rem', marginLeft: '0.3rem' }}>
+                ({r.dayStr})
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function WeekSection({ label, bucket }) {
+    const hasAny = REGIONS.some(r => Object.keys(bucket[r] || {}).length > 0);
+    return (
+      <div style={{ marginBottom: '0.75rem' }}>
+        <div className="upcoming-week-label">{label}</div>
+        {!hasAny
+          ? <div style={{fontSize:'0.78rem',color:'var(--mid)',fontStyle:'italic',padding:'0.25rem 0 0.5rem'}}>No featured coverage scheduled.</div>
+          : REGIONS.map(r => <RegionBlock key={r} region={r} roleBucket={bucket[r] || {}} />)
+        }
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <WeekSection label="This Week" bucket={thisWeek} />
+      <WeekSection label="Next Week" bucket={nextWeek} />
+    </div>
+  );
+}
+
+// ── Scheduler View ────────────────────────────────────────────────────────────
+
+// ── Roles editor ─────────────────────────────────────────────────────────────
+
+function RolesEditor({ onChanged }) {
+  const [types, setTypes]     = useState(null);
+  const [saving, setSaving]   = useState(false);
+  const [error, setError]     = useState('');
+  const [newRole, setNewRole] = useState({ name: '', short: '', color: '#1D4ED8', bg: '#DBEAFE', featured: false, weekendOnly: false });
+  const [renaming, setRenaming] = useState({ name: null, value: '' }); // which row is in rename mode
+
+  const PRESETS = [
+    { color: '#1D4ED8', bg: '#DBEAFE' },
+    { color: '#7C3AED', bg: '#EDE9FE' },
+    { color: '#059669', bg: '#D1FAE5' },
+    { color: '#D97706', bg: '#FEF3C7' },
+    { color: '#DC2626', bg: '#FEE2E2' },
+    { color: '#0891B2', bg: '#CFFAFE' },
+    { color: '#9333EA', bg: '#F3E8FF' },
+    { color: '#DB2777', bg: '#FCE7F3' },
+    { color: '#15803D', bg: '#DCFCE7' },
+    { color: '#B45309', bg: '#FEF9C3' },
+    { color: '#374151', bg: '#F3F4F6' },
+    { color: '#7F1D1D', bg: '#FFF1F2' },
+  ];
+
+  useEffect(() => {
+    api('GET', '/api/schedule/types')
+      .then(d => setTypes(d))
+      .catch(() => setTypes({}));
+  }, []);
+
+  async function persist(updated) {
+    setSaving(true); setError('');
+    try {
+      await api('PUT', '/api/schedule/types', updated);
+      setTypes(updated);
+      onChanged();
+    } catch (err) { setError(err.message || 'Save failed.'); }
+    finally { setSaving(false); }
+  }
+
+  async function toggleFeatured(name) {
+    await persist({ ...types, [name]: { ...types[name], featured: !types[name].featured } });
+  }
+
+  async function toggleWeekendOnly(name) {
+    await persist({ ...types, [name]: { ...types[name], weekendOnly: !types[name].weekendOnly } });
+  }
+
+  async function deleteRole(name) {
+    if (!window.confirm(`Delete "${name}"? Existing schedule entries using this role won't be deleted, but will lose their color.`)) return;
+    const updated = { ...types };
+    delete updated[name];
+    await persist(updated);
+  }
+
+  async function commitRename() {
+    const oldName = renaming.name;
+    const newName = renaming.value.trim();
+    if (!newName) { setRenaming({ name: null, value: '' }); return; }
+    if (newName === oldName) { setRenaming({ name: null, value: '' }); return; }
+    if (types[newName]) { setError(`"${newName}" already exists.`); return; }
+    setSaving(true); setError('');
+    try {
+      const res = await api('PUT', '/api/schedule/rename-role', { oldName, newName });
+      // Refresh types from server to get updated object
+      const fresh = await api('GET', '/api/schedule/types');
+      setTypes(fresh);
+      onChanged();
+      setRenaming({ name: null, value: '' });
+    } catch (err) { setError(err.message || 'Rename failed.'); }
+    finally { setSaving(false); }
+  }
+
+  async function addRole() {
+    const name  = newRole.name.trim();
+    const short = newRole.short.trim().toUpperCase();
+    if (!name || !short) { setError('Role name and short code are required.'); return; }
+    if (types[name]) { setError(`"${name}" already exists.`); return; }
+    setError('');
+    await persist({ ...types, [name]: { color: newRole.color, bg: newRole.bg, short, featured: newRole.featured, weekendOnly: newRole.weekendOnly } });
+    setNewRole({ name: '', short: '', color: '#1D4ED8', bg: '#DBEAFE', featured: false, weekendOnly: false });
+  }
+
+  if (!types) return <div className="sched-empty">Loading roles…</div>;
+
+  return (
+    <div>
+      <div className="roles-hint">
+        Roles marked <strong>★</strong> appear in the <strong>Upcoming Coverage</strong> widget on the homepage. A person can hold multiple roles on the same day — just assign them when editing the calendar.
+      </div>
+
+      <table className="roles-table">
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Short Code</th>
+            <th style={{textAlign:'center'}}>★ Upcoming</th>
+            <th style={{textAlign:'center'}}>⛔ Weekdays</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.keys(types).length === 0 && (
+            <tr><td colSpan="4" style={{color:'var(--mid)',fontSize:'0.82rem',padding:'1rem 0.75rem',fontStyle:'italic'}}>No roles yet — add one below.</td></tr>
+          )}
+          {Object.entries(types).map(([name, t]) => {
+            const isRenaming = renaming.name === name;
+            return (
+              <tr key={name}>
+                <td>
+                  <span className="sched-pill" style={{background: t.bg, color: t.color}}>{t.short}</span>
+                  {isRenaming ? (
+                    <span style={{display:'inline-flex',alignItems:'center',gap:'0.35rem',marginLeft:'0.5rem'}}>
+                      <input
+                        autoFocus
+                        className="roles-add-input"
+                        style={{width:'160px',padding:'0.2rem 0.5rem',fontSize:'0.85rem'}}
+                        value={renaming.value}
+                        onChange={e => setRenaming(r => ({...r, value: e.target.value}))}
+                        onKeyDown={e => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') setRenaming({ name: null, value: '' }); }}
+                      />
+                      <button className="sched-add-btn" style={{padding:'0.2rem 0.55rem',fontSize:'0.78rem'}} onClick={commitRename} disabled={saving}>✓</button>
+                      <button className="role-del-btn" onClick={() => setRenaming({ name: null, value: '' })} title="Cancel">✕</button>
+                    </span>
+                  ) : (
+                    <span style={{marginLeft:'0.6rem'}}>{name}
+                      <button className="role-rename-btn" onClick={() => setRenaming({ name, value: name })} disabled={saving} title="Rename role">✏️</button>
+                    </span>
+                  )}
+                </td>
+                <td><code style={{fontSize:'0.78rem',color:'var(--mid)',background:'var(--page-bg)',padding:'0.1rem 0.4rem',borderRadius:'5px',border:'1px solid var(--border)'}}>{t.short}</code></td>
+                <td style={{textAlign:'center'}}>
+                  <button className={`role-feat-btn${t.featured ? ' active' : ''}`} onClick={() => toggleFeatured(name)} disabled={saving || isRenaming} title={t.featured ? 'Remove from homepage' : 'Show on homepage'}>
+                    {t.featured ? '★' : '☆'}
+                  </button>
+                </td>
+                <td style={{textAlign:'center'}}>
+                  <button
+                    className={`role-feat-btn${t.weekendOnly ? ' active' : ''}`}
+                    onClick={() => toggleWeekendOnly(name)}
+                    disabled={saving || isRenaming}
+                    title={t.weekendOnly ? 'Available weekends only — click to allow any day' : 'Allow any day — click to restrict to weekends only'}
+                    style={t.weekendOnly ? { color: '#D97706' } : {}}
+                  >
+                    {t.weekendOnly ? '🏖' : '—'}
+                  </button>
+                </td>
+                <td>
+                  <button className="role-del-btn" onClick={() => deleteRole(name)} disabled={saving || isRenaming} title="Delete role">✕</button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      <div className="roles-add-section">
+        <div style={{fontSize:'0.68rem',fontWeight:700,color:'var(--mid)',textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:'0.85rem'}}>Add New Role</div>
+        {error && <p style={{fontSize:'0.78rem',color:'var(--red)',marginBottom:'0.65rem'}}>{error}</p>}
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 130px',gap:'0.6rem',marginBottom:'0.75rem'}}>
+          <div>
+            <label className="roles-add-label">Role Name</label>
+            <input className="roles-add-input" placeholder="e.g. On Call" value={newRole.name}
+              onChange={e => setNewRole(r => ({...r, name: e.target.value}))} />
+          </div>
+          <div>
+            <label className="roles-add-label">Short Code</label>
+            <input className="roles-add-input" placeholder="ONC" maxLength="6" value={newRole.short}
+              onChange={e => setNewRole(r => ({...r, short: e.target.value.toUpperCase()}))} />
+          </div>
+        </div>
+
+        <div style={{marginBottom:'0.75rem'}}>
+          <label className="roles-add-label">Color</label>
+          <div className="color-presets">
+            {PRESETS.map((p, i) => (
+              <div key={i}
+                className={`color-swatch${newRole.color === p.color ? ' selected' : ''}`}
+                style={{background: `linear-gradient(135deg, ${p.bg} 50%, ${p.color} 50%)`, borderColor: newRole.color === p.color ? p.color : 'transparent'}}
+                onClick={() => setNewRole(r => ({...r, color: p.color, bg: p.bg}))}
+                title={p.color}
+              />
+            ))}
+          </div>
+          <div style={{marginTop:'0.5rem',display:'flex',alignItems:'center',gap:'0.5rem'}}>
+            <span className="sched-pill" style={{background: newRole.bg, color: newRole.color}}>{newRole.short || 'ABC'}</span>
+            <span style={{fontSize:'0.75rem',color:'var(--mid)'}}>preview</span>
+          </div>
+        </div>
+
+        <div style={{display:'flex',alignItems:'center',gap:'0.75rem',flexWrap:'wrap'}}>
+          <label className="role-featured-check">
+            <input type="checkbox" checked={newRole.featured} onChange={e => setNewRole(r => ({...r, featured: e.target.checked}))} />
+            Show in Upcoming Coverage (★)
+          </label>
+          <label className="role-featured-check">
+            <input type="checkbox" checked={newRole.weekendOnly} onChange={e => setNewRole(r => ({...r, weekendOnly: e.target.checked}))} />
+            Weekends only (🏖)
+          </label>
+          <button className="sched-add-btn" onClick={addRole} disabled={saving || !newRole.name.trim() || !newRole.short.trim()}>
+            {saving ? 'Saving…' : '+ Add Role'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Import / Export backup ────────────────────────────────────────────────────
+
+function ImportExport({ selectedYear }) {
+  const [exporting, setExporting]   = useState(false);
+  const [importing, setImporting]   = useState(false);
+  const [importResult, setImportResult] = useState(null);
+  const [clearFirst, setClearFirst] = useState(false);
+  const [fileLabel, setFileLabel]   = useState('Choose JSON file…');
+  const fileRef = React.useRef();
+
+  async function doExport() {
+    setExporting(true);
+    try {
+      const res = await fetch(`/api/schedule/export?year=${selectedYear}`);
+      if (!res.ok) throw new Error(await res.text());
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `assigner-schedule-${selectedYear}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Export failed: ' + e.message);
+    }
+    setExporting(false);
+  }
+
+  async function doImport() {
+    const file = fileRef.current && fileRef.current.files[0];
+    if (!file) { alert('Please choose a JSON file first.'); return; }
+    setImporting(true);
+    setImportResult(null);
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      const res  = await fetch('/api/schedule/import', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ entries: json.entries || json, clearFirst }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      setImportResult({ ok: true, inserted: data.imported, skipped: data.skipped });
+      setFileLabel('Choose JSON file…');
+      if (fileRef.current) fileRef.current.value = '';
+    } catch (e) {
+      setImportResult({ ok: false, message: e.message });
+    }
+    setImporting(false);
+  }
+
+  return (
+    <div style={{ padding: '1.5rem' }}>
+      {/* Export */}
+      <div className="backup-section">
+        <div className="backup-title">📤 Export Schedule</div>
+        <div className="backup-desc">
+          Download all schedule entries for <strong>{selectedYear}</strong> as a JSON file.
+          Use this to keep an offline backup or to copy entries to another year.
+        </div>
+        <button className="btn btn-primary" onClick={doExport} disabled={exporting}
+          style={{ marginTop: '0.75rem' }}>
+          {exporting ? 'Exporting…' : `Export ${selectedYear} Schedule`}
+        </button>
+      </div>
+
+      {/* Import */}
+      <div className="backup-section" style={{ marginTop: '1.5rem' }}>
+        <div className="backup-title">📥 Import Schedule</div>
+        <div className="backup-desc">
+          Upload a previously exported JSON file to restore or merge schedule entries.
+          Members are matched by first name, last name, and region.
+        </div>
+
+        <label className="import-file-label" style={{ display: 'inline-block', marginTop: '0.75rem' }}>
+          📎 {fileLabel}
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".json,application/json"
+            className="import-file-input"
+            onChange={e => setFileLabel(e.target.files[0] ? e.target.files[0].name : 'Choose JSON file…')}
+          />
+        </label>
+
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem',
+          fontSize: '0.85rem', cursor: 'pointer' }}>
+          <input type="checkbox" checked={clearFirst}
+            onChange={e => setClearFirst(e.target.checked)} />
+          Clear existing entries for the imported year before loading
+        </label>
+
+        <button className="btn btn-primary" onClick={doImport} disabled={importing}
+          style={{ marginTop: '0.75rem' }}>
+          {importing ? 'Importing…' : 'Import Schedule'}
+        </button>
+
+        {importResult && (
+          <div className={`import-result ${importResult.ok ? 'import-ok' : 'import-err'}`}
+            style={{ marginTop: '0.75rem', padding: '0.6rem 0.9rem', borderRadius: '6px',
+              background: importResult.ok ? 'var(--green-bg,#d1fae5)' : 'var(--red-bg,#fee2e2)',
+              color: importResult.ok ? 'var(--green,#059669)' : 'var(--red,#dc2626)',
+              fontSize: '0.85rem' }}>
+            {importResult.ok
+              ? `✅ Import complete — ${importResult.inserted} entries added, ${importResult.skipped} skipped.`
+              : `❌ Import failed: ${importResult.message}`}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Inline cell editor ────────────────────────────────────────────────────────
+
+function InlineCell({ dateStr, member, region, types, isWeekend, initialEntries, active, onActivate, onChanged }) {
+  const [localEntries, setLocalEntries] = useState(null); // null = not editing
+  const [selected, setSelected]         = useState('');
+  const [saving, setSaving]             = useState(false);
+  const ref = React.useRef();
+
+  const entries = active ? (localEntries ?? initialEntries) : initialEntries;
+
+  // Snapshot entries on activate; clear on deactivate
+  useEffect(() => {
+    if (active) {
+      setLocalEntries(initialEntries);
+      setSelected('');
+    } else {
+      setLocalEntries(null);
+      setSelected('');
+    }
+  }, [active]);
+
+  // Close on click outside
+  useEffect(() => {
+    if (!active) return;
+    function handler(e) {
+      if (ref.current && !ref.current.contains(e.target)) onActivate(null);
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [active]);
+
+  const availableTypes = Object.keys(types).filter(name => {
+    if (types[name].weekendOnly && !isWeekend) return false;
+    if (entries.some(e => e.assignment === name)) return false;
+    return true;
+  });
+
+  async function handleAdd() {
+    if (!selected || saving) return;
+    setSaving(true);
+    try {
+      const result = await api('POST', '/api/schedule/entry', {
+        date: dateStr, member_id: member.id, assignment: selected, region
+      });
+      setLocalEntries(prev => [...(prev ?? initialEntries), { id: result.id, assignment: selected }]);
+      setSelected('');
+      onChanged();
+    } catch {}
+    finally { setSaving(false); }
+  }
+
+  async function handleRemove(id) {
+    setLocalEntries(prev => (prev ?? initialEntries).filter(e => e.id !== id));
+    try {
+      await api('DELETE', `/api/schedule/entry/${id}`);
+      onChanged();
+    } catch {
+      setLocalEntries(initialEntries);
+    }
+  }
+
+  if (active) {
+    return (
+      <td ref={ref} className="sched-cell-active">
+        <div className="sched-cell-inner">
+          <div className="sched-pills" style={{ justifyContent: 'flex-start' }}>
+            {entries.length === 0
+              ? <span style={{ fontSize: '0.7rem', color: 'var(--mid)', fontStyle: 'italic' }}>none</span>
+              : entries.map(e => {
+                  const t = types[e.assignment] || {};
+                  return (
+                    <span key={e.id} className="sched-pill"
+                      style={{ background: t.bg || '#eee', color: t.color || '#333' }}>
+                      {t.short || e.assignment}
+                      <button className="sched-pill-x" onClick={() => handleRemove(e.id)} title="Remove">✕</button>
+                    </span>
+                  );
+                })}
+          </div>
+          {availableTypes.length > 0 && (
+            <div className="sched-inline-add">
+              <select className="sched-inline-select" value={selected}
+                onChange={e => setSelected(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }}>
+                <option value="">+ add…</option>
+                {availableTypes.map(name => {
+                  const t = types[name] || {};
+                  return <option key={name} value={name}>{t.short || name}</option>;
+                })}
+              </select>
+              {selected && (
+                <button className="sched-inline-btn" onClick={handleAdd} disabled={saving}>
+                  {saving ? '…' : '✓'}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </td>
+    );
+  }
+
+  return (
+    <td ref={ref} className="sched-cell" onClick={() => onActivate(`${dateStr}|${member.id}`)}>
+      <div className="sched-pills">
+        {entries.map(e => {
+          const t = types[e.assignment] || {};
+          return (
+            <span key={e.id} className="sched-pill"
+              style={{ background: t.bg || '#eee', color: t.color || '#333' }}>
+              {t.short || e.assignment}
+            </span>
+          );
+        })}
+        {entries.length === 0 && <span className="sched-cell-add">+</span>}
+      </div>
+    </td>
+  );
+}
+
+// ── Scheduler view ────────────────────────────────────────────────────────────
+
+function SchedulerView({ region }) {
+  const now = new Date();
+  const [schedView, setSchedView]   = useState('calendar');
+  const [data, setData]             = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [refreshing, setRefreshing] = useState(false); // background refresh — does NOT unmount the view
+  const [fetchError, setFetchError] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [monthIdx, setMonthIdx]     = useState(now.getMonth());
+  const [activeCell, setActiveCell] = useState(null); // "date|memberId" or null
+
+  function loadData(background = false) {
+    if (background) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+      setFetchError(null);
+    }
+    api('GET', `/api/schedule?region=${region}&year=${selectedYear}`)
+      .then(d => { setData(d); setLoading(false); setRefreshing(false); })
+      .catch(err => {
+        setFetchError(err.message || 'Failed to load schedule.');
+        setData(null);
+        setLoading(false);
+        setRefreshing(false);
+      });
+  }
+
+  useEffect(() => { loadData(false); }, [region, selectedYear]);
+
+  const MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS_SHORT  = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+  function isoWeek(date) {
+    const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const y = d.getUTCFullYear();
+    const w = Math.ceil((((d - Date.UTC(y,0,1)) / 86400000) + 1) / 7);
+    return w;
+  }
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function fmtDate(y, m, d) { return `${y}-${pad2(m+1)}-${pad2(d)}`; }
+
+  const subNav = (
+    <div className="sched-subnav">
+      <button className={`sched-subnav-btn${schedView === 'calendar' ? ' active' : ''}`} onClick={() => setSchedView('calendar')}>📅 Calendar</button>
+      <button className={`sched-subnav-btn${schedView === 'roles'    ? ' active' : ''}`} onClick={() => setSchedView('roles')}>⚙ Manage Roles</button>
+      <button className={`sched-subnav-btn${schedView === 'backup'   ? ' active' : ''}`} onClick={() => setSchedView('backup')}>📦 Backup</button>
+      <div className="year-nav">
+        <button className="year-nav-btn" onClick={() => { setSelectedYear(y => y - 1); }} title="Previous year">‹</button>
+        <span className="year-label">{selectedYear}</span>
+        <button className="year-nav-btn" onClick={() => { setSelectedYear(y => y + 1); }} title="Next year">›</button>
+      </div>
+    </div>
+  );
+
+  if (schedView === 'roles') {
+    return (
+      <div className="scheduler-wrap">
+        {subNav}
+        <RolesEditor onChanged={() => loadData(true)} />
+      </div>
+    );
+  }
+
+  if (schedView === 'backup') {
+    return (
+      <div className="scheduler-wrap">
+        {subNav}
+        <ImportExport selectedYear={selectedYear} />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="scheduler-wrap">
+        {subNav}
+        <div className="sched-empty">Loading…</div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="scheduler-wrap">
+        {subNav}
+        <div className="sched-empty" style={{color:'var(--red)'}}>
+          ⚠ Could not load schedule: <strong>{fetchError}</strong><br />
+          <span style={{fontSize:'0.78rem',color:'var(--mid)',fontWeight:400}}>
+            Try restarting the server (<code>pm2 restart assigner</code>) then refresh.
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  const types   = data?.types   || {};
+  const entries = data?.entries || [];
+  const members = data?.members || [];
+
+  // Build lookup: "date|member_id" → [{id, assignment}, ...]
+  const lookup = {};
+  for (const e of entries) {
+    const k = `${e.date}|${e.member_id}`;
+    if (!lookup[k]) lookup[k] = [];
+    lookup[k].push({ id: e.id, assignment: e.assignment });
+  }
+
+  // Build summary count per type per member
+  const summary = {}; // summary[assignment][member_id] = count
+  for (const e of entries) {
+    if (!summary[e.assignment]) summary[e.assignment] = {};
+    summary[e.assignment][e.member_id] = (summary[e.assignment][e.member_id] || 0) + 1;
+  }
+
+  // Days in month grid
+  const daysInMonth = new Date(Date.UTC(selectedYear, monthIdx + 1, 0)).getUTCDate();
+  const todayStr = fmtDate(now.getFullYear(), now.getMonth(), now.getDate());
+
+
+
+  if (members.length === 0) {
+    return (
+      <div className="scheduler-wrap">
+        {subNav}
+        <div className="sched-empty">
+          No team members in the <strong>{region}</strong> region yet.<br />
+          Add members in the Assigner tab to populate the schedule.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="scheduler-wrap">
+      {subNav}
+      {/* Month navigation */}
+      <div className="sched-nav">
+        <button className="sched-nav-btn" onClick={() => setMonthIdx(m => (m + 11) % 12)}>‹</button>
+        <span className="sched-nav-title">{MONTHS_LONG[monthIdx]}</span>
+        <button className="sched-nav-btn" onClick={() => setMonthIdx(m => (m + 1) % 12)}>›</button>
+        {(monthIdx !== now.getMonth() || selectedYear !== now.getFullYear()) && (
+          <button className="sched-today-btn" onClick={() => { setMonthIdx(now.getMonth()); setSelectedYear(now.getFullYear()); }}>Today</button>
+        )}
+      </div>
+
+      {/* Summary table */}
+      <div className="sched-section">
+        <div className="sched-section-title">Year-to-Date Summary</div>
+        <div className="sched-table-wrap">
+          <table className="sched-table">
+            <thead>
+              <tr>
+                <th className="sched-type-col">Role</th>
+                {members.map(m => (
+                  <th key={m.id}>{m.first_name}<br /><span style={{fontWeight:400,opacity:0.7}}>{m.last_name}</span></th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(types).map(([name, t]) => (
+                <tr key={name}>
+                  <td className="sched-type-cell">
+                    <span className="sched-pill" style={{ background: t.bg, color: t.color }}>
+                      {t.short}
+                    </span>
+                    <span style={{marginLeft:'0.5rem', fontSize:'0.78rem'}}>{name}</span>
+                    {t.featured && <span style={{marginLeft:'0.3rem', color:'var(--yellow-dark)', fontWeight:700}} title="Shows on homepage">★</span>}
+                  </td>
+                  {members.map(m => {
+                    const cnt = (summary[name] || {})[m.id] || 0;
+                    return (
+                      <td key={m.id} className="sched-count" style={cnt === 0 ? {opacity:0.3} : {}}>
+                        {cnt === 0 ? '—' : cnt}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Monthly grid */}
+      <div className="sched-section">
+        <div className="sched-section-title">
+          {MONTHS_LONG[monthIdx]} {selectedYear}
+          <span style={{fontSize:'0.7rem',color:'var(--mid)',marginLeft:'0.6rem',fontWeight:400}}>Click any cell to edit</span>
+        </div>
+        <div className="sched-table-wrap">
+          <table className="sched-table sched-grid-table">
+            <thead>
+              <tr>
+                <th className="wk-col">Wk</th>
+                <th className="dt-col">Date</th>
+                <th className="dy-col">Day</th>
+                {members.map(m => (
+                  <th key={m.id}>{m.first_name}<br /><span style={{fontWeight:400,opacity:0.7}}>{m.last_name}</span></th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: daysInMonth }, (_, i) => {
+                const day = i + 1;
+                const dt  = new Date(Date.UTC(selectedYear, monthIdx, day));
+                const dow = dt.getUTCDay(); // 0=Sun 6=Sat
+                const dateStr = fmtDate(selectedYear, monthIdx, day);
+                const isWeekend = dow === 0 || dow === 6;
+                const isToday   = dateStr === todayStr;
+                const showWk    = dow === 1; // Monday
+                const wk        = showWk ? isoWeek(dt) : '';
+
+                return (
+                  <tr key={day} className={isToday ? 'today' : isWeekend ? 'weekend' : ''}>
+                    <td className="wk-cell">{wk}</td>
+                    <td className="dt-cell">{pad2(day)}</td>
+                    <td className="dy-cell">{DAYS_SHORT[dow]}</td>
+                    {members.map(m => {
+                      const k = `${dateStr}|${m.id}`;
+                      return (
+                        <InlineCell
+                          key={m.id}
+                          dateStr={dateStr}
+                          member={m}
+                          region={region}
+                          types={types}
+                          isWeekend={isWeekend}
+                          initialEntries={lookup[k] || []}
+                          active={activeCell === k}
+                          onActivate={setActiveCell}
+                          onChanged={() => loadData(true)}
+                        />
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+// ── App ───────────────────────────────────────────────────────────────────────
+
+function App() {
+  const [members, setMembers]         = useState([]);
+  const [history, setHistory]         = useState([]);
+  const [pendingPick, setPendingPick] = useState(null);
+  const [picking, setPicking]         = useState(false);
+  const [toast, setToast]             = useState(null);
+  const [darkMode, setDarkMode]       = useState(() => localStorage.getItem('theme') === 'dark');
+  const [draggingId, setDraggingId]   = useState(null);
+  const [dropOver, setDropOver]       = useState(false);
+  const [balanceMode, setBalanceMode] = useState(false);
+  const [region, setRegion]           = useState(() => localStorage.getItem('region') || 'US');
+  const [view, setView]               = useState('assigner');
+  const dragCounter                   = React.useRef(0);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem('region', region);
+  }, [region]);
+
+  const showToast = (msg, type = 'info') => setToast({ message: msg, type });
+
+  const sortMembers = list =>
+    [...list].sort((a, b) =>
+      (b.is_checked_in - a.is_checked_in) ||
+      a.last_name.localeCompare(b.last_name) ||
+      a.first_name.localeCompare(b.first_name)
+    );
+
+  const loadMembers = useCallback(async () => {
+    const data = await api('GET', `/api/members?region=${region}`).catch(() => []);
+    setMembers(sortMembers(data));
+  }, [region]);
+
+  const loadHistory = useCallback(async () => {
+    const data = await api('GET', `/api/history?region=${region}`).catch(() => []);
+    setHistory(data);
+  }, [region]);
+
+  useEffect(() => {
+    loadMembers();
+    loadHistory();
+    const poll = setInterval(loadMembers, 30_000);
+    return () => clearInterval(poll);
+  }, [loadMembers, loadHistory]);
+
+  function handleAdded(member) {
+    setMembers(prev => sortMembers([...prev, member]));
+    showToast(`${member.first_name} ${member.last_name} added.`, 'success');
+  }
+
+  async function handleCheckin(id) {
+    try {
+      const updated = await api('POST', `/api/members/${id}/checkin`);
+      setMembers(prev => sortMembers(prev.map(m => m.id === id ? updated : m)));
+      showToast('Checked in — you\'re in the pool.', 'success');
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  async function handleCheckout(id, duration_minutes) {
+    try {
+      const updated = await api('POST', `/api/members/${id}/checkout`, { duration_minutes });
+      setMembers(prev => sortMembers(prev.map(m => m.id === id ? updated : m)));
+      showToast(duration_minutes ? 'Checked out — timer set.' : 'Checked out for the rest of the day.', 'info');
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  async function handleRemove(id) {
+    try {
+      await api('DELETE', `/api/members/${id}`);
+      setMembers(prev => prev.filter(m => m.id !== id));
+      showToast('Removed.', 'info');
+    } catch { showToast('Could not remove.', 'error'); }
+  }
+
+  async function handlePick() {
+    setPicking(true);
+    try {
+      const result = await api('POST', '/api/pick', balanceMode ? { balanced: true, region } : { region });
+      setPendingPick(result);
+    } catch (err) { showToast(err.message || 'Could not pick.', 'error'); }
+    finally { setPicking(false); }
+  }
+
+  async function handleManualPick(id) {
+    try {
+      const result = await api('POST', `/api/members/${id}/pick`);
+      setPendingPick(result);
+    } catch (err) { showToast(err.message || 'Could not assign.', 'error'); }
+  }
+
+  function handleDragStart(id) { setDraggingId(id); }
+  function handleDragEnd()     { setDraggingId(null); setDropOver(false); dragCounter.current = 0; }
+
+  function handleDropZoneEnter(e) {
+    e.preventDefault();
+    dragCounter.current += 1;
+    if (draggingId) setDropOver(true);
+  }
+  function handleDropZoneLeave() {
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) { setDropOver(false); dragCounter.current = 0; }
+  }
+  function handleDropZoneOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+  function handleDrop(e) {
+    e.preventDefault();
+    setDropOver(false);
+    dragCounter.current = 0;
+    if (draggingId) { handleManualPick(draggingId); setDraggingId(null); }
+  }
+
+  async function handleConfirm() {
+    try {
+      await api('POST', `/api/pick/${pendingPick.pick_id}/confirm`);
+      const name = `${pendingPick.member.first_name} ${pendingPick.member.last_name}`;
+
+      // Always re-fetch members from server — optimistic updates drift when picks
+      // happen in quick succession. Server data is always the source of truth.
+      const fresh  = await api('GET', `/api/members?region=${region}`).catch(() => null);
+      const sorted = fresh ? sortMembers(fresh) : null;
+
+      if (balanceMode) {
+        if (sorted) {
+          const checkedIn  = sorted.filter(m => m.is_checked_in);
+          const counts     = checkedIn.map(m => m.pick_count);
+          const isBalanced = checkedIn.length > 0 && counts.every(c => c === counts[0]);
+          if (isBalanced) {
+            setMembers(sorted.map(m => ({ ...m, current_cycle_assigned: 0 })));
+            setBalanceMode(false);
+            showToast('Balance reached — switching back to cycle mode.', 'success');
+          } else {
+            setMembers(sorted);
+            showToast(`Assigned to ${name}.`, 'success');
+          }
+        } else {
+          showToast(`Assigned to ${name}.`, 'success');
+        }
+      } else {
+        if (sorted) {
+          const checkedIn     = sorted.filter(m => m.is_checked_in);
+          const cycleComplete = checkedIn.length > 0 && checkedIn.every(m => m.current_cycle_assigned);
+          setMembers(cycleComplete ? sorted.map(m => ({ ...m, current_cycle_assigned: 0 })) : sorted);
+        }
+        showToast(`Assigned to ${name}.`, 'success');
+      }
+      setPendingPick(null);
+      loadHistory();
+    } catch { showToast('Failed to confirm.', 'error'); }
+  }
+
+  async function handleUnavailable() {
+    try { await api('POST', `/api/pick/${pendingPick.pick_id}/cancel`); } catch {}
+    setPendingPick(null);
+    showToast('Cancelled — try again.', 'info');
+  }
+
+  async function handleReset() {
+    try {
+      await api('POST', '/api/reset', { region });
+      await loadMembers();
+      await loadHistory();
+      showToast('Reset complete.', 'info');
+    } catch { showToast('Reset failed.', 'error'); }
+  }
+
+  const available         = members.filter(m => m.is_checked_in).length;
+  const total             = members.length;
+  const totalAssign       = members.reduce((s, m) => s + m.pick_count, 0);
+  const assignedThisCycle = members.filter(m => m.current_cycle_assigned).length;
+  const showCycleLegend   = total > 0 && assignedThisCycle > 0;
+
+  // Balance mode exclusion: checked-in members at the max pick_count are excluded
+  // until everyone else catches up. When all are equal, no one is excluded.
+  const checkedInMembers  = members.filter(m => m.is_checked_in);
+  const balanceMaxCount   = balanceMode && checkedInMembers.length > 0
+    ? Math.max(...checkedInMembers.map(m => m.pick_count)) : -1;
+  const balanceAllEqual   = balanceMode && checkedInMembers.length > 0
+    && checkedInMembers.every(m => m.pick_count === balanceMaxCount);
+
+  return (
+    <>
+      <header className="header">
+        <div className="header-inner">
+          <div className="header-brand">
+            <div className="brand-mark">
+              <ShellLogo size={26} />
+            </div>
+            <div>
+              <div className="brand-name">Assigner</div>
+              <div className="brand-sub">Work Assignment Tool</div>
+            </div>
+          </div>
+          <div className="nav-tabs">
+            <button className={`nav-tab${view === 'assigner' ? ' active' : ''}`} onClick={() => setView('assigner')}>⚡ Assigner</button>
+            <button className={`nav-tab${view === 'scheduler' ? ' active' : ''}`} onClick={() => setView('scheduler')}>📅 Scheduler</button>
+          </div>
+          <div className="header-right">
+            <div className="region-pills">
+              {['US','NL','BNG'].map(r => (
+                <button key={r} className={`region-pill${region === r ? ' active' : ''}`} onClick={() => setRegion(r)}>{r}</button>
+              ))}
+            </div>
+            <button className="theme-toggle" onClick={() => setDarkMode(d => !d)} title="Toggle dark mode">
+              {darkMode ? '☀' : '🌙'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {view === 'scheduler' && <SchedulerView region={region} />}
+
+      {view === 'assigner' && <div className="container">
+        <div className="top-bar card">
+          <div className="card-title">Add a Team Member — {region}</div>
+          <RegisterForm onAdded={handleAdded} region={region} />
+        </div>
+
+        <div className="left-col">
+          <div className="card">
+            <div className="card-title">
+              Team Roster
+              <span className="card-badge">{total}</span>
+            </div>
+            {showCycleLegend && (
+              <div className="cycle-legend">
+                <span>⚡</span>
+                <span>{assignedThisCycle} of {available || total} assigned this cycle</span>
+              </div>
+            )}
+            {total === 0 ? (
+              <div className="empty">No one on the roster yet.<br />Add yourself above.</div>
+            ) : (
+              <div className="member-list">
+                {members.map(m => (
+                  <MemberCard
+                    key={m.id}
+                    member={m}
+                    onCheckin={handleCheckin}
+                    onCheckout={handleCheckout}
+                    onRemove={handleRemove}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    isDragging={draggingId === m.id}
+                    balanceExcluded={balanceMode && !balanceAllEqual && m.is_checked_in && m.pick_count >= balanceMaxCount}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="right-col">
+          <div className="card assign-card">
+            <div className="card-title">Assign Work Item</div>
+            {total > 0 && (
+              <div className="stats-row">
+                <div className="stat-chip">
+                  <span className={`val ${available > 0 ? 'green' : ''}`}>{available}</span>
+                  <span className="lbl">Available</span>
+                </div>
+                <div className="stat-chip">
+                  <span className="val">{total - available}</span>
+                  <span className="lbl">Out</span>
+                </div>
+                {!balanceMode && (
+                  <div className="stat-chip">
+                    <span className="val">{assignedThisCycle}/{available || total}</span>
+                    <span className="lbl">This Cycle</span>
+                  </div>
+                )}
+              </div>
+            )}
+            <button
+              className={`btn-assign${dropOver ? ' drop-over' : ''}`}
+              onClick={handlePick}
+              disabled={picking || available === 0}
+              onDragEnter={handleDropZoneEnter}
+              onDragLeave={handleDropZoneLeave}
+              onDragOver={handleDropZoneOver}
+              onDrop={handleDrop}
+            >
+              {dropOver ? '⚡ Drop to Assign' : picking ? 'Selecting…' : '⚡ Assign Someone'}
+            </button>
+            <p className={`assign-drag-hint${draggingId ? ' visible' : ''}`}>
+              Drop here to manually assign
+            </p>
+            <p className="assign-hint" style={{display: draggingId ? 'none' : undefined}}>
+              {available === 0
+                ? total === 0
+                  ? 'Add team members to get started.'
+                  : 'No one is checked in right now.'
+                : balanceMode
+                  ? `Balancing across ${available} available — those with fewer assignments go first.`
+                  : `Picks from ${available} available — each person is picked once before the cycle repeats.`}
+            </p>
+
+            {/* Balance Us toggle */}
+            <div className="balance-row" onClick={() => setBalanceMode(b => !b)}>
+              <div className={`toggle-track${balanceMode ? ' on' : ''}`}>
+                <div className="toggle-thumb" />
+              </div>
+              <span className={`balance-label${balanceMode ? ' active' : ''}`}>Balance Us</span>
+            </div>
+            {balanceMode && (
+              <p className="balance-desc">
+                Cycles paused. Members with fewer total assignments are picked first until everyone is even.
+              </p>
+            )}
+          </div>
+
+          <div className="card">
+            <div className="card-title">
+              Upcoming Coverage
+              <span className="card-badge" style={{background:'var(--yellow)',color:'var(--dark)'}}>★</span>
+            </div>
+            <UpcomingWidget />
+          </div>
+
+          <div className="card">
+            <div className="card-title">
+              Assignment History
+              <span className="card-badge">{history.filter(h => h.type === 'pick').length}</span>
+            </div>
+            {history.length === 0 ? (
+              <div className="empty">No assignments yet.</div>
+            ) : (
+              <div className="history-list">
+                {(() => {
+                  let pastCycle = false;
+                  return history.map(item => {
+                    if (item.type === 'cycle') {
+                      pastCycle = true;
+                      return (
+                        <div key={`cycle-${item.id}`} className="cycle-marker">
+                          <span className="cycle-marker-line" />
+                          <span className="cycle-marker-text">
+                            ⚡ New Cycle — {fmtDateTime(item.ts)}
+                          </span>
+                          <span className="cycle-marker-line" />
+                        </div>
+                      );
+                    }
+                    const cls = pastCycle ? 'prev' : 'current';
+                    return (
+                      <div key={`pick-${item.id}`} className={`history-item ${cls}`}>
+                        <div>
+                          <div className="history-name">{item.first_name} {item.last_name}</div>
+                          <div className="history-ts">{fmtDateTime(item.ts)}</div>
+                        </div>
+                        <span className="history-check">✓ Assigned</span>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            )}
+          </div>
+
+          <ResetCard onReset={handleReset} />
+        </div>
+      </div>}
+
+      {view === 'assigner' && pendingPick && (
+        <PickModal pick={pendingPick} onConfirm={handleConfirm} onUnavailable={handleUnavailable} />
+      )}
+      {toast && (
+        <Toast key={toast.message + Date.now()} message={toast.message} type={toast.type} onDone={() => setToast(null)} />
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
