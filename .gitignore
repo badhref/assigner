@@ -1,5 +1,8 @@
 node_modules/
+client/node_modules/
 .claude/
 tracker.db
 tracker.db-shm
 tracker.db-wal
+public/
+dist/
