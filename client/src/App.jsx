@@ -183,7 +183,7 @@ export default function App() {
         setDarkMode={setDarkMode}
       />
 
-      <main className="flex-1 overflow-y-auto p-5 min-w-0">
+      <main className="flex-1 overflow-y-auto p-5 min-w-0 ml-56">
         {view === 'scheduler' ? (
           <SchedulerView region={region} />
         ) : (
