@@ -217,7 +217,7 @@ export default function App() {
 
       {pendingPick && (
         <PickModal
-          member={pendingPick.member}
+          pick={pendingPick}
           onConfirm={handleConfirm}
           onUnavailable={handleUnavailable}
         />
@@ -227,7 +227,7 @@ export default function App() {
         <Toast
           message={toast.message}
           type={toast.type}
-          onDismiss={() => setToast(null)}
+          onDone={() => setToast(null)}
         />
       )}
     </div>
